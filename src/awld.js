@@ -8,7 +8,10 @@
 if (typeof DEBUG === 'undefined') {
     DEBUG = true;
     VERSION = 'debug';
-    JQUERY_PATH = '../../lib/jquery/jquery-1.7.2.min';
+    BASE_URL = '../../src/';
+    LIB_PATH = '../lib/';
+    MODULE_PATH = 'modules/';
+    JQUERY_PATH = 'jquery/jquery-1.7.2.min';
 }
 
 (function(window) {
@@ -19,35 +22,90 @@ if (typeof DEBUG === 'undefined') {
      * @namespace
      * Root namespace for the library
      */
-    var awld = {},
-        jQuery = window.jQuery,
-        paths = {},
-        noConflict;
+    var awld = {};
         
-    // set version
+    /**
+     * @type String
+     * Version number
+     */
     awld.version = VERSION;
-        
-    // check for jQuery 
-    if (!jQuery || jQuery.fn.jquery.match(/^1\.[0-4]/)) {
-        // load if it's not available or doesn't meet min standards
-        paths['jquery'] = JQUERY_PATH;
-        noConflict = true;
-    } else {
-        // register the current jQuery
-        define('jquery', [], function() { return jQuery });
-    }
-     
-    require.config({ 
-        paths: paths 
-    });
     
-    // deal with jQuery versions if necessary
-    if (noConflict) {
-        require(['jquery'], function($) {
-            $.noConflict(true);
+    /**
+     * @type String
+     * Base URL for the library; library and module dependencies will be loaded
+     * relative to this URL. See http://requirejs.org/docs/api.html#config for
+     * more information.
+     */
+    awld.baseUrl = BASE_URL;
+    
+    /**
+     * @type Object
+     * Special path definitions for various dependencies.
+     * See http://requirejs.org/docs/api.html#config for
+     * more information.
+     */
+    awld.paths = {};
+    
+    /**
+     * @function
+     * Initialize the library, loading and running modules based on page content
+     */
+    awld.init = function() {
+        DEBUG && console.log('Initializing library');
+        var jQuery = window.jQuery,
+            paths = awld.paths,
+            libPath = LIB_PATH,
+            modulePath = MODULE_PATH,
+            noConflict;
+        
+        // check for jQuery 
+        if (!jQuery || jQuery.fn.jquery.match(/^1\.[0-4]/)) {
+            // load if it's not available or doesn't meet min standards
+            paths['jquery'] = libPath + JQUERY_PATH;
+            noConflict = true;
+        } else {
+            // register the current jQuery
+            define('jquery', [], function() { return jQuery });
+        }
+        
+        // set up require
+        require.config({
+            baseUrl: awld.baseUrl,
+            paths: paths 
+        });
+        
+        // load registry and initialize modules
+        require(['jquery', 'registry'], function($, registry) {
+        
+            // deal with jQuery versions if necessary
+            if (noConflict) $.noConflict(true);
+            
+            var toLoad = []; // XXX: ['core'];
+            
+            // look for modules to initialize
+            $.each(registry, function(uriBase, moduleName) {
+                console.log(uriBase, moduleName);
+                // look for links with this URI base
+                if ($('a[href^="' + uriBase + '"]').length) {
+                    DEBUG && console.log('Found links for module: ' + moduleName);
+                    toLoad.push(moduleName);
+                }   
+            });
+            
+            // initialize identified modules
+            toLoad.forEach(function(moduleName) {
+                require([modulePath + moduleName], function(module) {
+                    module.init(function() {
+                        DEBUG && console.log('Initialized module: ' + moduleName);
+                    })
+                });
+            });
+            
         });
     }
     
     window.awld = awld;
     
-})(this); 
+})(window);
+
+awld.init();
