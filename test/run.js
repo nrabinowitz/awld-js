@@ -45,6 +45,36 @@ t.assertDoesNotExist = function(selector, message) {
     t.assertEval(f, message);
 }
 
+// app-specific helpers
+
+casper.waitUntilLoaded = function() {
+    return this.waitFor(function() {
+        return casper.evaluate(function() {
+            return awld.loaded;
+        })
+    }, function() {
+        t.pass('Library is loaded');
+    }, function() {
+        t.fail('Library never loaded');
+    });
+};
+
+t.assertLoadCount = function(expected) {
+    t.assertEvalEquals(function() {
+            var loaded = [];
+            for (var key in awld.modules) loaded.push(key);
+            return loaded.length;
+        }, expected,
+        expected + ' modules were loaded');
+};
+
+t.assertModuleLoaded = function(module) {
+    var success = casper.evaluate(function(module) {
+        return module in awld.modules;
+    }, { module: module });
+    t.assert(success, 'Module "' + module + '" is loaded');
+};
+
 // set up and run suites
 var fs = require('fs'),
     tests = [];

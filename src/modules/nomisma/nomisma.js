@@ -1,10 +1,10 @@
-// Module: Pleiades places
+// Module: Nomisma.org API
 
 define(function() {
     return {
-        init: function(callback) {
+        name: 'Nomisma.org Entities',
+        init: function() {
             // XXX: do some initialization
-            callback();
         }
     }
 });

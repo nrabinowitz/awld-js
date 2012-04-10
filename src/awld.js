@@ -9,8 +9,6 @@ if (typeof DEBUG === 'undefined') {
     DEBUG = true;
     VERSION = 'debug';
     BASE_URL = '../../src/';
-    LIB_PATH = '../lib/';
-    MODULE_PATH = 'modules/';
     JQUERY_PATH = 'jquery/jquery-1.7.2.min';
 }
 
@@ -22,7 +20,13 @@ if (typeof DEBUG === 'undefined') {
      * @namespace
      * Root namespace for the library
      */
-    var awld = {};
+    var awld = {},
+        config = {
+            baseUrl: BASE_URL,
+            modulePath: 'modules/',
+            libPath: 'lib/',
+            paths: {}
+        };
         
     /**
      * @type String
@@ -31,20 +35,29 @@ if (typeof DEBUG === 'undefined') {
     awld.version = VERSION;
     
     /**
-     * @type String
-     * Base URL for the library; library and module dependencies will be loaded
-     * relative to this URL. See http://requirejs.org/docs/api.html#config for
-     * more information.
+     * @function
+     * Set configuration options for the library.
+     * @param {Object} opts             Options to set
+     * @param {String} [opts.baseUrl]       Base URL for dependencies; library and module 
+     *                                      dependencies will be loaded relative to this URL. 
+     *                                      See http://requirejs.org/docs/api.html#config for
+     *                                      more information.
+     * @param {String} [opts.modulePath]    Path for modules, relative to baseUrl
+     * @param {String} [opts.libPath]       Path for 3rd-party libraries, relative to baseUrl
+     * @param {Object} [opts.paths]         Special path definitions for various dependencies.
+     *                                      See http://requirejs.org/docs/api.html#config for
+     *                                      more information.
      */
-    awld.baseUrl = BASE_URL;
+    awld.config = function(opts) {
+        for (var key in opts)
+            config[key] = opts[key];
+    };
     
     /**
      * @type Object
-     * Special path definitions for various dependencies.
-     * See http://requirejs.org/docs/api.html#config for
-     * more information.
+     * Map of loaded modules
      */
-    awld.paths = {};
+    awld.modules = {};
     
     /**
      * @function
@@ -52,17 +65,23 @@ if (typeof DEBUG === 'undefined') {
      */
     awld.init = function() {
         DEBUG && console.log('Initializing library');
+        
         var jQuery = window.jQuery,
-            paths = awld.paths,
-            libPath = LIB_PATH,
-            modulePath = MODULE_PATH,
+            // check for old versions of jQuery
+            oldjQuery = jQuery && !!jQuery.fn.jquery.match(/^1\.[0-4]/),
+            paths = config.paths,
+            libPath = config.libPath,
+            modulePath = config.modulePath,
+            onload = config.onLoad,
+            localJqueryPath = libPath + JQUERY_PATH,
             noConflict;
         
+        
         // check for jQuery 
-        if (!jQuery || jQuery.fn.jquery.match(/^1\.[0-4]/)) {
+        if (!jQuery || oldjQuery) {
             // load if it's not available or doesn't meet min standards
-            paths['jquery'] = libPath + JQUERY_PATH;
-            noConflict = true;
+            paths['jquery'] = localJqueryPath;
+            noConflict = oldjQuery;
         } else {
             // register the current jQuery
             define('jquery', [], function() { return jQuery });
@@ -70,7 +89,7 @@ if (typeof DEBUG === 'undefined') {
         
         // set up require
         require.config({
-            baseUrl: awld.baseUrl,
+            baseUrl: config.baseUrl,
             paths: paths 
         });
         
@@ -80,25 +99,45 @@ if (typeof DEBUG === 'undefined') {
             // deal with jQuery versions if necessary
             if (noConflict) $.noConflict(true);
             
-            var toLoad = []; // XXX: ['core'];
+            // load machinery
+            var toLoad = [],
+                loaded = 0,
+                loadMgr = function(moduleName, module) {
+                    DEBUG && console.log('Loaded module: ' + moduleName);
+                    awld.modules[moduleName] = module;
+                    // check for complete
+                    if (++loaded == toLoad.length) {
+                        DEBUG && console.log('All modules loaded');
+                        awld.loaded = true;
+                        // initialize core
+                        require([modulePath + 'core'], function(core) {
+                            core.init(awld.modules);
+                        });
+                    }
+                }
             
-            // look for modules to initialize
-            $.each(registry, function(uriBase, moduleName) {
-                console.log(uriBase, moduleName);
-                // look for links with this URI base
-                if ($('a[href^="' + uriBase + '"]').length) {
-                    DEBUG && console.log('Found links for module: ' + moduleName);
-                    toLoad.push(moduleName);
-                }   
-            });
+            // wrap in ready, just in case, as this looks through the DOM
+            $(function() {
             
-            // initialize identified modules
-            toLoad.forEach(function(moduleName) {
-                require([modulePath + moduleName], function(module) {
-                    module.init(function() {
-                        DEBUG && console.log('Initialized module: ' + moduleName);
-                    })
+                // look for modules to initialize
+                $.each(registry, function(uriBase, moduleName) {
+                    // look for links with this URI base
+                    var $links = $('a[href^="' + uriBase + '"]');
+                    if ($links.length) {
+                        DEBUG && console.log('Found links for module: ' + moduleName);
+                        toLoad.push(moduleName);
+                        // run init
+                        module.init && module.init();
+                    }   
                 });
+                
+                // initialize identified modules
+                toLoad.forEach(function(moduleName) {
+                    require([modulePath + moduleName], function(module) {
+                        loadMgr(moduleName, module);
+                    });
+                });
+                
             });
             
         });
@@ -107,5 +146,3 @@ if (typeof DEBUG === 'undefined') {
     window.awld = awld;
     
 })(window);
-
-awld.init();

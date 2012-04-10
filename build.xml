@@ -10,7 +10,17 @@
     
     <!-- get properties -->
     <property name="config.dir" value="config" />
+    <property name="src.dir" value="src" />
+    <property name="module.dir" value="${src.dir}/modules" />
+    <property name="clientlib.dir" value="${src.dir}/lib" />
+    
     <property file="${config.dir}/build.properties" />
+    
+    <!-- Build targets -->
+    
+    <target name="build-production">
+        <!-- Nothing yet -->
+    </target>
     
     <!-- Server targets -->
     
@@ -32,7 +42,22 @@
     
     <!-- Test targets -->
     
-    <target name="run-tests" depends="start-test-server">
+    <target name="build-tests">
+        <!-- Copy files for "custom" setup test -->
+        <copy todir="test/pages/custom">
+            <fileset dir="${src.dir}" />
+        </copy>
+        <move file="test/pages/custom/modules" tofile="test/pages/custom/m"/>
+        <move file="test/pages/custom/lib" tofile="test/pages/custom/l"/>
+    </target>
+    
+    <target name="clean-tests">
+        <delete includeemptydirs="true">
+            <fileset dir="test/pages/custom" includes="**/*"/>
+        </delete>
+    </target>
+    
+    <target name="run-tests" depends="build-tests, start-test-server">
         <echo>Running tests</echo>
         <property name="suite" value="test/suites"/>
         <exec executable="python" failonerror="true">
@@ -40,6 +65,7 @@
             <arg file="test/run.js" />
             <arg file="${suite}" />
         </exec>
+        <ant target="clean-tests"/>
     </target>
     
 </project>
