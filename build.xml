@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project name="awld.js" default="run-tests">
+    
+    <!-- define ant-contrib tasks -->
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+    
+    <!-- get properties -->
+    <property name="config.dir" value="config" />
+    <property file="${config.dir}/build.properties" />
+    
+    <!-- Server targets -->
+    
+    <target name="start-test-server">
+        <exec executable="cmd.exe">
+            <arg line="/K start node ${devserver.js} -s ${test.server.port} -r ." />
+        </exec>
+    </target>
+    
+    <target name="launch-in-browser">
+        <exec executable="cmd.exe">
+            <arg line="/K start http://localhost:${test.server.port}/test/pages" />
+        </exec>
+    </target>
+    
+    <target name="serve-test"
+            depends="start-test-server,
+                     launch-in-browser" />
+    
+    <!-- Test targets -->
+    
+    <target name="run-tests" depends="start-test-server">
+        <echo>Running tests</echo>
+        <property name="suite" value="test/suites"/>
+        <exec executable="python" failonerror="true">
+            <arg file="${casper.js}" />
+            <arg file="test/run.js" />
+            <arg file="${suite}" />
+        </exec>
+    </target>
+    
+</project>
