@@ -102,18 +102,18 @@ if (typeof DEBUG === 'undefined') {
             if (noConflict) $.noConflict(true);
             
             // load machinery
-            var toLoad = [],
+            var target = 0,
                 loaded = 0,
                 modules = awld.modules,
                 loadMgr = function(moduleName, module) {
                     DEBUG && console.log('Loaded module: ' + moduleName);
                     modules[moduleName] = module;
                     // check for complete
-                    if (++loaded == toLoad.length) {
+                    if (++loaded == target) {
                         DEBUG && console.log('All modules loaded');
                         awld.loaded = true;
                         // initialize core
-                        require([modulePath + 'core'], function(core) {
+                        require([modulePath + 'core/core'], function(core) {
                             awld.core = core;
                             core.init(modules);
                         });
@@ -129,20 +129,17 @@ if (typeof DEBUG === 'undefined') {
                     var $refs = $('a[href^="' + uriBase + '"]');
                     if ($refs.length) {
                         DEBUG && console.log('Found links for module: ' + moduleName);
-                        toLoad.push({ name: moduleName, refs: $refs });
+                        target++;
+                        // load module
+                        require([modulePath + moduleName], function(module) {
+                            // add cached references
+                            module.$refs = $refs;
+                            // run init
+                            module.init();
+                            // update manager
+                            loadMgr(moduleName, module);
+                        });
                     }   
-                });
-                
-                // initialize identified modules
-                toLoad.forEach(function(m) {
-                    var moduleName = m.name;
-                    require([modulePath + moduleName], function(module) {
-                        loadMgr(moduleName, module);
-                        // add cached references
-                        module.$refs = m.refs;
-                        // run init
-                        module.init();
-                    });
                 });
                 
             });

@@ -1,6 +1,6 @@
 // Core module: Displays index
 
-define(['jquery'], function() {
+define('modules/core/core',['jquery'], function() {
     var modules;
     
     // create the index of known references

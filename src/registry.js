@@ -1,4 +1,4 @@
-define({
+define('registry', {
     'http://pleiades.stoa.org/places': 'pleiades/place',
     'http://www.worldcat.org/oclc': 'worldcat/oclc',
     'http://nomisma.org/id': 'nomisma/nomisma',
