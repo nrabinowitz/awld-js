@@ -9,6 +9,10 @@ if (typeof DEBUG === 'undefined') {
     DEBUG = true;
     VERSION = 'debug';
     BASE_URL = '../../src/';
+    // cache busting for development
+    require.config({
+        urlArgs: "bust=" +  (new Date()).getTime()
+    });
 }
 
 (function(window) {
@@ -95,15 +99,8 @@ if (typeof DEBUG === 'undefined') {
             paths: paths 
         });
         
-        // cache busting for development
-        if (DEBUG) {
-            require.config({
-                urlArgs: "bust=" +  (new Date()).getTime()
-            });
-        } 
-        
         // load registry and initialize modules
-        require(['jquery', 'registry'], function($, registry) {
+        require(['jquery', 'registry', 'core'], function($, registry, core) {
         
             // deal with jQuery versions if necessary
             if (noConflict) $.noConflict(true);
@@ -119,11 +116,7 @@ if (typeof DEBUG === 'undefined') {
                     if (++loaded == target) {
                         if (DEBUG) console.log('All modules loaded');
                         awld.loaded = true;
-                        // initialize core
-                        require([modulePath + 'core/core'], function(core) {
-                            awld.core = core;
-                            core.init(modules);
-                        });
+                        core.init(modules);
                     }
                 }
             
@@ -139,7 +132,7 @@ if (typeof DEBUG === 'undefined') {
                         target++;
                         // load module
                         require([modulePath + moduleName], function(module) {
-                            // add cached references
+                            // save cached references
                             module.$refs = $refs;
                             // run init
                             module.init();
@@ -154,6 +147,7 @@ if (typeof DEBUG === 'undefined') {
         });
     }
     
+    // add to global namespace
     window.awld = awld;
     
 })(window);

@@ -1,21 +1,11 @@
 // Core module: Displays index
 
-define('modules/core/core',['require', 'jquery'], function(require, $) {
+define('core',['jquery', 'text!core/core.css'], function($, styles) {
     var modules;
     
     // load stylesheet
     function loadStylesheet() {
-        var cssUrl = require.toUrl("./core.css"),
-            // set the display to none
-            $style = $('<style>.awld{display:none;}</style>').appendTo('head');
-        // load the stylesheet
-        $("<link>")
-            .attr({
-                rel:  "stylesheet",
-                type: "text/css",
-                href: cssUrl
-            })
-            .appendTo('head');
+        var $style = $('<style>' + styles + '</style>').appendTo('head');
     }
     
     // create the index of known references
