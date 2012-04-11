@@ -12,7 +12,7 @@ if (typeof DEBUG === 'undefined') {
 }
 
 (function(window) {
-    DEBUG && console.log('AWLD.js loaded');
+    if (DEBUG) console.log('AWLD.js loaded');
     
     /**
      * @name awld
@@ -67,7 +67,7 @@ if (typeof DEBUG === 'undefined') {
      * Initialize the library, loading and running modules based on page content
      */
     awld.init = function() {
-        DEBUG && console.log('Initializing library');
+        if (DEBUG) console.log('Initializing library');
         
         var jQuery = window.jQuery,
             // check for old versions of jQuery
@@ -95,6 +95,13 @@ if (typeof DEBUG === 'undefined') {
             paths: paths 
         });
         
+        // cache busting for development
+        if (DEBUG) {
+            require.config({
+                urlArgs: "bust=" +  (new Date()).getTime()
+            });
+        } 
+        
         // load registry and initialize modules
         require(['jquery', 'registry'], function($, registry) {
         
@@ -106,11 +113,11 @@ if (typeof DEBUG === 'undefined') {
                 loaded = 0,
                 modules = awld.modules,
                 loadMgr = function(moduleName, module) {
-                    DEBUG && console.log('Loaded module: ' + moduleName);
+                    if (DEBUG) console.log('Loaded module: ' + moduleName);
                     modules[moduleName] = module;
                     // check for complete
                     if (++loaded == target) {
-                        DEBUG && console.log('All modules loaded');
+                        if (DEBUG) console.log('All modules loaded');
                         awld.loaded = true;
                         // initialize core
                         require([modulePath + 'core/core'], function(core) {
@@ -128,7 +135,7 @@ if (typeof DEBUG === 'undefined') {
                     // look for links with this URI base
                     var $refs = $('a[href^="' + uriBase + '"]');
                     if ($refs.length) {
-                        DEBUG && console.log('Found links for module: ' + moduleName);
+                        if (DEBUG) console.log('Found links for module: ' + moduleName);
                         target++;
                         // load module
                         require([modulePath + moduleName], function(module) {
