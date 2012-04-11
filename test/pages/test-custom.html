@@ -5,11 +5,9 @@
         <script src="../../lib/requirejs/require.min.js"></script>
         <script src="../../src/awld.js"></script>
         <script>
-            awld.config({
-                baseUrl: 'custom/',
-                modulePath: 'm/',
-                libPath: 'l/'
-            });
+            awld.baseUrl = 'custom/';
+            awld.modulePath = 'm/';
+            awld.libPath = 'l/';
             awld.init();
         </script>
         <style type="text/css">
