@@ -10,16 +10,81 @@
     
     <!-- get properties -->
     <property name="config.dir" value="config" />
-    <property name="src.dir" value="src" />
-    <property name="module.dir" value="${src.dir}/modules" />
-    <property name="clientlib.dir" value="${src.dir}/lib" />
-    
     <property file="${config.dir}/build.properties" />
+    
+    <property name="src.dir" value="src" />
+    
+    <property name="release.dir" value="release" />
+    <property name="current.release.dir" value="${release.dir}/${version.number}"/>
+    <property name="latest.release.dir" value="${release.dir}/latest"/>
+    
+    <property name="js.build" value="${current.release.dir}/awld.js" />
+    
     
     <!-- Build targets -->
     
     <target name="build-production">
-        <!-- Nothing yet -->
+        <echo>Building production release</echo>
+        <property name="js.settings" value="${config.dir}/settings.production.js"/>
+        <property name="js.uglify.compress" value="true"/>
+        <property name="js.uglify.files" value="${production.files}"/>
+        <ant target="-build"/>
+    </target>
+    
+    <target name="-build" 
+            depends="build-release,
+                     -uglify-concat-js,
+                     -insert-version,
+                     -copy-modules,
+                     -copy-to-latest"/>
+    
+    <target name="build-release">
+        <echo>Set up release directories</echo>
+        <delete dir="${current.release.dir}"/>
+        <delete dir="${latest.release.dir}"/>
+        <mkdir dir="${current.release.dir}"/>
+    </target>
+    
+    <target name="-copy-modules">
+        <copy todir="${current.release.dir}/modules">
+            <fileset dir="${src.dir}/modules"/>
+        </copy>
+        <copy todir="${current.release.dir}/lib">
+            <fileset dir="${src.dir}/lib"/>
+        </copy>
+    </target>
+    
+    <target name="-copy-to-latest">
+        <copy todir="${latest.release.dir}">
+            <fileset dir="${current.release.dir}"/>
+        </copy>
+    </target>
+    
+    <target name="-uglify-concat-js">
+        <echo>Minifying and concatenating JS files</echo>
+        <!-- Compress and add extensions and apps -->
+        <condition property="js.compress.argument" value="-nc" else="-ns -b">
+            <isset property="js.uglify.compress"/>
+        </condition>
+        <for list="${js.uglify.files}" param="file" trim="true">
+            <sequential>
+                <echo>Adding @{file}</echo>
+                <concat destfile="${js.build}.tmp" append="yes">
+                    <fileset file="@{file}"/>
+                </concat>
+            </sequential>
+        </for>
+        <echo>Compressing ${js.build}</echo>
+        <exec executable="${uglify.js}" failonerror="true">
+            <arg line="--define-from-module &quot;${basedir}/${js.settings}&quot;"/>
+            <arg line="${js.compress.argument}"/>
+            <arg line="${js.build}.tmp > ${js.build}"/>
+        </exec>
+        <delete file="${js.build}.tmp"/>
+    </target>
+    
+    <target name="-insert-version">
+        <replace file="${js.build}" token="VERSION" value="'${version.number}'"/>
     </target>
     
     <!-- Server targets -->
@@ -42,7 +107,7 @@
     
     <!-- Test targets -->
     
-    <target name="build-tests">
+    <target name="build-tests" depends="build-production">
         <!-- Copy files for "custom" setup test -->
         <copy todir="test/pages/custom">
             <fileset dir="${src.dir}" />

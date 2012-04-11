@@ -24,6 +24,19 @@ casper
         t.assertLoadCount(1);
         t.assertModuleLoaded('pleiades/place');
     });
+    
+casper
+    .describe("Modules > Load based on links, production build")
+    .thenOpen(baseUrl + 'test-production.html')
+    .waitUntilLoaded()
+    .then(function() {
+        t.assertLoadCount(5);
+        t.assertModuleLoaded('pleiades/place');
+        t.assertModuleLoaded('worldcat/oclc');
+        t.assertModuleLoaded('perseus/smith');
+        t.assertModuleLoaded('nomisma/nomisma');
+        t.assertModuleLoaded('wikipedia/page');
+    });
 
 casper.run(function() {
     t.done();
