@@ -18,6 +18,8 @@
     <property name="current.release.dir" value="${release.dir}/${version.number}"/>
     <property name="latest.release.dir" value="${release.dir}/latest"/>
     
+    <property name="tmp.dir" value="tmp" />
+    
     <property name="js.build" value="${current.release.dir}/awld.js" />
     
     
@@ -27,22 +29,30 @@
         <echo>Building production release</echo>
         <property name="js.settings" value="${config.dir}/settings.production.js"/>
         <property name="js.uglify.compress" value="true"/>
-        <property name="js.uglify.files" value="${production.files}"/>
+        <!-- This won't work with more than 1 core module -->
+        <property name="js.rjs.modules" value="${production.rjs.core}, ${production.rjs.modules}"/>
+        <property name="js.rjs.core.build" value="${tmp.dir}/${production.rjs.core}"/>
+        <property name="js.uglify.files" value="${production.files.head},
+                                                ${js.rjs.core.build},
+                                                ${production.files.main}"/>
         <ant target="-build"/>
     </target>
     
     <target name="-build" 
             depends="build-release,
+                     -preprocess-rjs,
                      -uglify-concat-js,
                      -insert-version,
                      -copy-modules,
-                     -copy-to-latest"/>
+                     -copy-to-latest,
+                     clean-build"/>
     
     <target name="build-release">
         <echo>Set up release directories</echo>
         <delete dir="${current.release.dir}"/>
         <delete dir="${latest.release.dir}"/>
         <mkdir dir="${current.release.dir}"/>
+        <mkdir dir="${tmp.dir}"/>
     </target>
     
     <target name="-copy-modules">
@@ -58,6 +68,23 @@
         <copy todir="${latest.release.dir}">
             <fileset dir="${current.release.dir}"/>
         </copy>
+    </target>
+    
+    <target name="clean-build">
+        <delete dir="${tmp.dir}"/>
+    </target>
+    
+    <target name="-preprocess-rjs">
+        <echo>Preprocessing JS files with r.js</echo>
+        <for list="${js.rjs.modules}" param="module" trim="true">
+            <sequential>
+                <echo>Processing @{file}</echo>
+                <exec executable="${r.js}" failonerror="true">
+                    <arg line="-o baseUrl=./src exclude=text paths.jquery=empty:"/>
+                    <arg line="name=@{module} out=${tmp.dir}/@{module}"/>
+                </exec>
+            </sequential>
+        </for>
     </target>
     
     <target name="-uglify-concat-js">
