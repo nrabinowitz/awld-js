@@ -30,8 +30,8 @@
         <property name="js.settings" value="${config.dir}/settings.production.js"/>
         <property name="js.uglify.compress" value="true"/>
         <!-- This won't work with more than 1 core module -->
-        <property name="js.rjs.modules" value="${production.rjs.core}, ${production.rjs.modules}"/>
-        <property name="js.rjs.core.build" value="${tmp.dir}/${production.rjs.core}"/>
+        <property name="js.rjs.core" value="${production.rjs.core}"/>
+        <property name="js.rjs.core.build" value="${tmp.dir}/${production.rjs.core}.js"/>
         <property name="js.uglify.files" value="${production.files.head},
                                                 ${js.rjs.core.build},
                                                 ${production.files.main}"/>
@@ -40,7 +40,7 @@
     
     <target name="-build" 
             depends="build-release,
-                     -preprocess-rjs,
+                     -process-rjs-core,
                      -uglify-concat-js,
                      -insert-version,
                      -copy-modules,
@@ -55,6 +55,10 @@
         <mkdir dir="${tmp.dir}"/>
     </target>
     
+    <target name="-process-rjs-core">
+        <rjs module="${js.rjs.core}"/>
+    </target>
+    
     <target name="-copy-modules">
         <copy todir="${current.release.dir}/modules">
             <fileset dir="${src.dir}/modules"/>
@@ -62,6 +66,20 @@
         <copy todir="${current.release.dir}/lib">
             <fileset dir="${src.dir}/lib"/>
         </copy>
+        <!-- Now process require module files -->
+        <exec executable="node" failonerror="true" outputproperty="js.rjs.modules">
+            <arg line="${config.dir}/get_registry.js"/>
+        </exec>
+        <!-- copy, overwriting -->
+        <for list="${js.rjs.modules}" param="file" trim="true">
+            <sequential>
+                <echo>Optimizing module @{file}</echo>
+                <rjs module="modules/@{file}"/>
+                <copy tofile="${current.release.dir}/modules/@{file}.js" overwrite="true">
+                    <fileset file="${tmp.dir}/modules/@{file}.js"/>
+                </copy>
+            </sequential>
+        </for>
     </target>
     
     <target name="-copy-to-latest">
@@ -72,19 +90,6 @@
     
     <target name="clean-build">
         <delete dir="${tmp.dir}"/>
-    </target>
-    
-    <target name="-preprocess-rjs">
-        <echo>Preprocessing JS files with r.js</echo>
-        <for list="${js.rjs.modules}" param="module" trim="true">
-            <sequential>
-                <echo>Processing @{file}</echo>
-                <exec executable="${r.js}" failonerror="true">
-                    <arg line="-o baseUrl=./src exclude=text paths.jquery=empty:"/>
-                    <arg line="name=@{module} out=${tmp.dir}/@{module}"/>
-                </exec>
-            </sequential>
-        </for>
     </target>
     
     <target name="-uglify-concat-js">
@@ -159,5 +164,17 @@
         </exec>
         <ant target="clean-tests"/>
     </target>
+    
+    <!-- Macros -->
+    <macrodef name="rjs">
+        <attribute name="module" default=""/>
+        <sequential>
+            <echo>Processing @{module}</echo>
+            <exec executable="${r.js}" failonerror="true">
+                <arg line="-o baseUrl=./src exclude=text paths.jquery=empty:"/>
+                <arg line="name=@{module} out=${tmp.dir}/@{module}.js"/>
+            </exec>
+        </sequential>
+    </macrodef>
     
 </project>
