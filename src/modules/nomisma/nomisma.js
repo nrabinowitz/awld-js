@@ -9,7 +9,7 @@ define(['jquery'], function() {
             return 'http://nomisma.org/xml/' + id + '.txt'
         },
         parseData: function(xml) {
-            getText = awld.accessor(xml);
+            var getText = awld.accessor(xml);
             return {
                 name: getText('[property="skos:prefLabel"]'),
                 description: getText('[property="skos:definition"]'),

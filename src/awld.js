@@ -177,7 +177,7 @@ if (typeof DEBUG === 'undefined') {
                                             f(res);
                                         });
                                         loaded = true;
-                                        if (DEBUG) console.log('Loaded resource', res.uri, res.data);
+                                        if (DEBUG) console.log('Loaded resource', res.uri);
                                     },
                                     error: function() {
                                         if (DEBUG) console.log('Resource request failed', arguments);
