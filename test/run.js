@@ -61,16 +61,14 @@ casper.waitUntilLoaded = function() {
 
 t.assertLoadCount = function(expected) {
     t.assertEvalEquals(function() {
-            var loaded = [];
-            for (var key in awld.modules) loaded.push(key);
-            return loaded.length;
+            return awld.modules.length;
         }, expected,
         expected + ' modules were loaded');
 };
 
 t.assertModuleLoaded = function(module) {
     var success = casper.evaluate(function(module) {
-        return module in awld.modules;
+        return module in awld.moduleMap;
     }, { module: module });
     t.assert(success, 'Module "' + module + '" is loaded');
 };

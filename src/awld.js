@@ -66,6 +66,12 @@ if (typeof DEBUG === 'undefined') {
         modules: [],
         
         /**
+         * @type Object
+         * Map of loaded modules, keyed by module path
+         */
+        moduleMap: {},
+        
+        /**
          * @type Boolean
          * Whether to auto-load data for all identified URIs
          */
@@ -114,6 +120,17 @@ if (typeof DEBUG === 'undefined') {
             // deal with jQuery versions if necessary
             if (noConflict) $.noConflict(true);
             
+            // add a jquery-dependent utility
+            awld.accessor = function(xml) {
+                $xml = $(xml);
+                return function(selector, attr) {
+                    var text = $(selector, $xml).map(function() {
+                            return attr ? $(this).attr(attr) : $(this).text();
+                        }).toArray();
+                    return text.length > 1 ? text : text[0];
+                }
+            }
+            
             /**
              * @name awld.Resource
              * @class
@@ -130,7 +147,8 @@ if (typeof DEBUG === 'undefined') {
                     loaded = false,
                     yqlUrl = function(uri) {
                         return 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20' + dataType 
-                            +'%20where%20url%3D%22' + uri + '%22&format=json&diagnostics=false&callback=?'
+                            +'%20where%20url%3D%22' + uri + '%22&format=' + dataType 
+                            + '&diagnostics=false&callback=?'
                     };
                 return $.extend({
                     // do something when data is loaded
@@ -170,7 +188,7 @@ if (typeof DEBUG === 'undefined') {
                                     options.url = yqlUrl(options.url);
                                     options.dataType = 'jsonp';
                                     parseResponse = function(data) {
-                                        data = data.results && data.results[dataType] || {};
+                                        data = data && (data.results && data.results[0] || data.query.results) || {};
                                         return parseData(data);
                                     }
                                     $.ajax(options);
@@ -187,9 +205,8 @@ if (typeof DEBUG === 'undefined') {
                             else makeYqlRequest();
                         }
                     },
-                    data: {},
                     name: function() {
-                        return this.data.name || this.linkText;
+                        return this.data && this.data.name || this.linkText;
                     }
                 }, opts);
             };
@@ -245,6 +262,8 @@ if (typeof DEBUG === 'undefined') {
                 modules = awld.modules,
                 loadMgr = function(moduleName, module) {
                     if (DEBUG) console.log('Loaded module: ' + moduleName);
+                    // add to lists
+                    awld.moduleMap[moduleName] = module;
                     modules.push(module);
                     // check for complete
                     if (++loaded == target) {
@@ -269,6 +288,7 @@ if (typeof DEBUG === 'undefined') {
                         require([modulePath + moduleName], function(module) {
                             // initialize with cached references
                             module.$refs = $refs;
+                            module.moduleName = moduleName;
                             module = Module(module);
                             module.init();
                             // update manager
