@@ -58,12 +58,18 @@ if (typeof DEBUG === 'undefined') {
          * Version number
          */
         version: VERSION,
-    
+        
         /**
          * @type Object[]
          * Array of loaded modules
          */
-        modules: []
+        modules: [],
+        
+        /**
+         * @type Boolean
+         * Whether to auto-load data for all identified URIs
+         */
+        autoLoad: true
     };
     
     /**
@@ -108,6 +114,126 @@ if (typeof DEBUG === 'undefined') {
             // deal with jQuery versions if necessary
             if (noConflict) $.noConflict(true);
             
+            /**
+             * @name awld.Resource
+             * @class
+             * Base class for resources
+             */
+            var Resource = awld.Resource = function(opts) {
+                var readyHandlers = [],
+                    module = opts.module,
+                    dataType = module.dataType,
+                    jsonp = dataType == 'jsonp',
+                    cors = module.corsEnabled,
+                    parseData = module.parseData,
+                    fetching = false,
+                    loaded = false,
+                    yqlUrl = function(uri) {
+                        return 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20' + dataType 
+                            +'%20where%20url%3D%22' + uri + '%22&format=json&diagnostics=false&callback=?'
+                    };
+                return $.extend({
+                    // do something when data is loaded
+                    ready: function(f) {
+                        if (loaded) f();
+                        else {
+                            readyHandlers.push(f);
+                            this.fetch();
+                        }
+                    },
+                    // load data for this resource
+                    fetch: function() {
+                        // don't allow multiple reqs
+                        if (!fetching) {
+                            fetching = true;
+                            var res = this,
+                                parseResponse = parseData,
+                                options = {
+                                    url: res.uri,
+                                    dataType: dataType,
+                                    success: function(data) {
+                                        // save data
+                                        res.data = parseResponse(data);
+                                        // invoke any handlers
+                                        readyHandlers.forEach(function(f) { 
+                                            f(res);
+                                        });
+                                        loaded = true;
+                                    },
+                                    error: function() {
+                                        if (DEBUG) console.log('Resource request failed', arguments);
+                                    }
+                                },
+                                // make a request using YQL as a JSONP proxy
+                                makeYqlRequest = function() {
+                                    options.url = yqlUrl(options.url);
+                                    options.dataType = 'jsonp';
+                                    parseResponse = function(data) {
+                                        data = data.results && data.results[dataType] || {};
+                                        return parseData(data);
+                                    }
+                                    $.ajax(options);
+                                };
+                            // allow CORS to fallback on YQL
+                            if (!jsonp && cors) {
+                                options.error = function() {
+                                    if (DEBUG) console.log('CORS fail, falling back on YQL for ' + res.uri);
+                                    makeYqlRequest();
+                                }
+                            }
+                            // make the request
+                            if (jsonp || cors) $.ajax(options);
+                            else makeYqlRequest();
+                        }
+                    },
+                    // 
+                    name: opts.linkText
+                }, opts);
+            };
+            
+            /**
+             * @name awld.Modules
+             * @class
+             * Base class for modules
+             */
+            var Module = awld.Module = function(opts) {
+                var cache = {},
+                    identity = function(d) { return d },
+                    noop = function() {};
+                return $.extend({
+                    // by default, retrieve and cache all resources
+                    init: function() {
+                        var module = this,
+                            resources = module.resources = module.$refs.map(function() {
+                                var $ref = $(this),
+                                    href = $ref.attr('href');
+                                return Resource({
+                                    module: module,
+                                    uri: module.toDataUri(href), 
+                                    href: href,
+                                    linkText: $ref.text()
+                                });
+                            }).toArray();
+                        // auto load if requested
+                        if (awld.autoLoad) {
+                            resources.forEach(function(res) {
+                                res.fetch();
+                            });
+                        }
+                    },
+                    // translate human URI to API URI
+                    toDataUri: function(uri) {
+                        // default: just stick .json on
+                        return uri + '.json';
+                    },
+                    // parse data returned from server
+                    parseData: identity,
+                    dataType: 'json',
+                    resourceName: identity,
+                    detailView: noop
+                }, opts);
+            };
+            
             // load machinery
             var target = 0,
                 loaded = 0,
@@ -119,11 +245,12 @@ if (typeof DEBUG === 'undefined') {
                     if (++loaded == target) {
                         if (DEBUG) console.log('All modules loaded');
                         awld.loaded = true;
+                        // init core
                         core.init(modules);
                     }
-                }
+                };
             
-            // wrap in ready, just in case, as this looks through the DOM
+            // wrap in ready, as this looks through the DOM
             $(function() {
             
                 // look for modules to initialize
@@ -135,8 +262,10 @@ if (typeof DEBUG === 'undefined') {
                         target++;
                         // load module
                         require([modulePath + moduleName], function(module) {
-                            // save cached references
+                            // initialize with cached references
                             module.$refs = $refs;
+                            module = Module(module);
+                            module.init();
                             // update manager
                             loadMgr(moduleName, module);
                         });

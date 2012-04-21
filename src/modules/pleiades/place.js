@@ -2,6 +2,10 @@
 
 define(function() {
     return {
-        name: 'Pleiades Places'
+        name: 'Pleiades Places',
+        toDataUri: function(uri) {
+            return uri + '/json';
+        },
+        corsEnabled: true
     }
 });
