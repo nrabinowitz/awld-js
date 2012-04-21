@@ -148,7 +148,7 @@ if (typeof DEBUG === 'undefined') {
                             fetching = true;
                             var res = this,
                                 parseResponse = parseData,
-                                options = {
+                                options = $.extend({
                                     url: res.uri,
                                     dataType: dataType,
                                     success: function(data) {
@@ -159,11 +159,12 @@ if (typeof DEBUG === 'undefined') {
                                             f(res);
                                         });
                                         loaded = true;
+                                        if (DEBUG) console.log('Loaded resource', res.uri, res.data);
                                     },
                                     error: function() {
                                         if (DEBUG) console.log('Resource request failed', arguments);
                                     }
-                                },
+                                }, module.ajaxOptions),
                                 // make a request using YQL as a JSONP proxy
                                 makeYqlRequest = function() {
                                     options.url = yqlUrl(options.url);
