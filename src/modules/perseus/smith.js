@@ -9,14 +9,16 @@ define(['jquery'], function($) {
         corsEnabled: true,
         // get values from the returned XML
         parseData: function(xml) {
-            function getText(tag) {
-                var text = $(tag, xml).map(function() {
+            function getText(selector) {
+                var text = $(selector, xml).map(function() {
                         return $(this).text();
                     }).toArray();
                 return text.length > 1 ? text : text[0];
             }
+            var names = getText('head persName');
             return {
-                name: getText('persName'),
+                names: names,
+                name: names.join(', or '),
                 description: getText('p')
             }
         }

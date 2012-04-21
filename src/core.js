@@ -12,14 +12,25 @@ define('core',['jquery', 'mustache',
         
         // create the index of known references
         function makeIndex() {
-            var view = { modules: [] };
+            var $index = $(Mustache.render(indexTemplate, {
+                modules: modules.map(function(module) {
+                    return { 
+                        name: module.name,
+                        resources: module.resources.map(function(res) {
+                            return { href: res.href, name: res.name() }
+                        })
+                    }
+                })
+            }));
+            // update names when loaded
             modules.forEach(function(module) {
-                view.modules.push({ 
-                    name: module.name,
-                    resources: module.resources
-                });
-            });
-            return Mustache.render(indexTemplate, view);
+                module.resources.forEach(function(res) {
+                    res.ready(function() {
+                        $index.find('a[href="' + res.href + '"]').text(res.name());
+                    })
+                })
+            })
+            return $index;
         }
         
         function addIndex(selector) {

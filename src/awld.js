@@ -187,8 +187,10 @@ if (typeof DEBUG === 'undefined') {
                             else makeYqlRequest();
                         }
                     },
-                    // 
-                    name: opts.linkText
+                    data: {},
+                    name: function() {
+                        return this.data.name || this.linkText;
+                    }
                 }, opts);
             };
             

@@ -6,6 +6,11 @@ define(function() {
         toDataUri: function(uri) {
             return uri + '/json';
         },
-        corsEnabled: true
+        corsEnabled: true,
+        // add name to data
+        parseData: function(data) {
+            data.name = data.title;
+            return data;
+        }
     }
 });
