@@ -2,9 +2,6 @@
 
 define(function() {
     return {
-        name: 'Nomisma.org Entities',
-        init: function() {
-            // XXX: do some initialization
-        }
+        name: 'Nomisma.org Entities'
     }
 });

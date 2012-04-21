@@ -2,9 +2,6 @@
 
 define(function() {
     return {
-        name: 'Worldcat Book References',
-        init: function() {
-            // XXX: do some initialization
-        }
+        name: 'Worldcat Book References'
     }
 });

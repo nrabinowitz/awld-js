@@ -2,9 +2,6 @@
 
 define(function() {
     return {
-        name: 'Wikipedia Pages',
-        init: function() {
-            // XXX: do some initialization
-        }
+        name: 'Wikipedia Pages'
     }
 });

@@ -2,9 +2,6 @@
 
 define(function() {
     return {
-        name: 'Perseus: References in Smith\'s "Greek and Roman biography and mythology"',
-        init: function() {
-            // XXX: do some initialization
-        }
+        name: 'Perseus: References in Smith\'s "Greek and Roman biography and mythology"'
     }
 });

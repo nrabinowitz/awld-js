@@ -60,10 +60,10 @@ if (typeof DEBUG === 'undefined') {
         version: VERSION,
     
         /**
-         * @type Object
-         * Map of loaded modules
+         * @type Object[]
+         * Array of loaded modules
          */
-        modules: {}
+        modules: []
     };
     
     /**
@@ -114,7 +114,7 @@ if (typeof DEBUG === 'undefined') {
                 modules = awld.modules,
                 loadMgr = function(moduleName, module) {
                     if (DEBUG) console.log('Loaded module: ' + moduleName);
-                    modules[moduleName] = module;
+                    modules.push(module);
                     // check for complete
                     if (++loaded == target) {
                         if (DEBUG) console.log('All modules loaded');
@@ -137,8 +137,6 @@ if (typeof DEBUG === 'undefined') {
                         require([modulePath + moduleName], function(module) {
                             // save cached references
                             module.$refs = $refs;
-                            // run init
-                            module.init();
                             // update manager
                             loadMgr(moduleName, module);
                         });
