@@ -223,6 +223,7 @@ if (typeof DEBUG === 'undefined') {
                                 res.fetch();
                             });
                         }
+                        module.initialize();
                     },
                     // translate human URI to API URI
                     toDataUri: function(uri) {
@@ -233,7 +234,8 @@ if (typeof DEBUG === 'undefined') {
                     parseData: identity,
                     dataType: 'json',
                     resourceName: identity,
-                    detailView: noop
+                    detailView: noop,
+                    initialize: noop
                 }, opts);
             };
             
