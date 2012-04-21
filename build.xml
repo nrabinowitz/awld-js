@@ -35,6 +35,7 @@
         <property name="js.uglify.files" value="${production.files.head},
                                                 ${js.rjs.core.build},
                                                 ${production.files.main}"/>
+        
         <ant target="-build"/>
     </target>
     
@@ -171,10 +172,10 @@
         <sequential>
             <echo>Processing @{module}</echo>
             <exec executable="${r.js}" failonerror="true">
-                <arg line="-o baseUrl=./src exclude=text paths.jquery=empty:"/>
+                <arg line="-o baseUrl=./src exclude=text"/>
+                <arg line="paths.jquery=empty: paths.mustache=lib/mustache.0.5.0-dev"/>
                 <arg line="name=@{module} out=${tmp.dir}/@{module}.js"/>
             </exec>
         </sequential>
     </macrodef>
-    
 </project>

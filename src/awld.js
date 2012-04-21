@@ -23,48 +23,48 @@ if (typeof DEBUG === 'undefined') {
      * @namespace
      * Root namespace for the library
      */
-    var awld = {};
-    
-    /**
-     * @type String
-     * Base URL for dependencies; library and module 
-     * dependencies will be loaded relative to this URL. 
-     * See http://requirejs.org/docs/api.html#config for
-     * more information.
-     */
-    awld.baseUrl = BASE_URL;
-    
-    /**
-     * @type String
-     * Path for modules, relative to baseUrl
-     */
-    awld.modulePath = 'modules/';
-    
-    /**
-     * @type String
-     * Path for libraries, relative to baseUrl
-     */
-    awld.libPath = 'lib/';
-    
-    /**
-     * @type Object
-     * Special path definitions for various dependencies.
-     * See http://requirejs.org/docs/api.html#config for
-     * more information.
-     */
-    awld.paths = {};
+    var awld = {
+        /**
+         * @type String
+         * Base URL for dependencies; library and module 
+         * dependencies will be loaded relative to this URL. 
+         * See http://requirejs.org/docs/api.html#config for
+         * more information.
+         */
+        baseUrl: BASE_URL,
         
-    /**
-     * @type String
-     * Version number
-     */
-    awld.version = VERSION;
+        /**
+         * @type String
+         * Path for modules, relative to baseUrl
+         */
+        modulePath: 'modules/',
+        
+        /**
+         * @type String
+         * Path for libraries, relative to baseUrl
+         */
+        libPath: 'lib/',
+        
+        /**
+         * @type Object
+         * Special path definitions for various dependencies.
+         * See http://requirejs.org/docs/api.html#config for
+         * more information.
+         */
+        paths: {},
+        
+        /**
+         * @type String
+         * Version number
+         */
+        version: VERSION,
     
-    /**
-     * @type Object
-     * Map of loaded modules
-     */
-    awld.modules = {};
+        /**
+         * @type Object
+         * Map of loaded modules
+         */
+        modules: {}
+    };
     
     /**
      * @function
@@ -92,6 +92,9 @@ if (typeof DEBUG === 'undefined') {
             // register the current jQuery
             define('jquery', [], function() { return jQuery });
         }
+        
+        // add mustache - better way to add libraries?
+        paths['mustache'] = libPath + 'mustache.0.5.0-dev';
         
         // set up require
         require.config({
