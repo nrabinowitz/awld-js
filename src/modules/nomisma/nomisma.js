@@ -4,10 +4,8 @@ define(['jquery'], function() {
     return {
         name: 'Nomisma.org Entities',
         dataType: 'xml',
-        toDataUri: function(uri) {
-            var id = uri.split('/').pop();
-            return 'http://nomisma.org/xml/' + id + '.txt'
-        },
+        toDataUri: function(uri) { return uri },
+        corsEnabled: true,
         parseData: function(xml) {
             var getText = awld.accessor(xml);
             return {
