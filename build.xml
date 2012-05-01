@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="awld.js" default="run-tests">
+<project name="awld.js" default="build-less">
     
     <!-- define ant-contrib tasks -->
     <taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -41,6 +41,7 @@
     
     <target name="-build" 
             depends="build-release,
+                     build-less,
                      -process-rjs-core,
                      -uglify-concat-js,
                      -insert-version,
@@ -54,6 +55,21 @@
         <delete dir="${latest.release.dir}"/>
         <mkdir dir="${current.release.dir}"/>
         <mkdir dir="${tmp.dir}"/>
+    </target>
+    
+    <target name="build-less">
+        <echo>Processing .less files</echo>
+        <for param="file">
+            <fileset dir="${src.dir}" includes="**/*.less" />
+            <sequential>
+                <propertyregex override="yes"
+                  property="css.file"  input="@{file}"
+                  regexp="(.*)\.less" replace="\1.css"/>
+                <exec executable="${lessc}" failonerror="true">
+                    <arg line="@{file} > ${css.file}"/>
+                </exec>
+          </sequential>
+        </for>
     </target>
     
     <target name="-process-rjs-core">
