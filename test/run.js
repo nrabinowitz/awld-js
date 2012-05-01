@@ -73,6 +73,25 @@ t.assertModuleLoaded = function(module) {
     t.assert(success, 'Module "' + module + '" is loaded');
 };
 
+t.assertUriFound = function(uri) {
+    var success = casper.evaluate(function(uri) {
+        return !!$('#awld-index a[href="' + uri + '"]').length
+    }, { uri: uri });
+    t.assert(success, 'Uri ' + uri + ' was included in the index');
+};
+
+t.assertUriLoaded = function(uri, title) {
+    return casper.waitFor(function() {
+        return casper.evaluate(function(uri, title) {
+            return $('#awld-index a[href="' + uri + '"]').text() == title;
+        }, { uri: uri, title: title })
+    }, function() {
+        t.pass('Uri ' + uri + ' is loaded with title ' + title);
+    }, function() {
+        t.fail('Uri ' + uri + ' is not loaded');
+    });
+};
+
 // set up and run suites
 var fs = require('fs'),
     tests = [];

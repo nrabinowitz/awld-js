@@ -176,7 +176,7 @@ if (typeof DEBUG === 'undefined') {
                                         readyHandlers.forEach(function(f) { 
                                             f(res);
                                         });
-                                        loaded = true;
+                                        loaded = res.loaded = true;
                                         if (DEBUG) console.log('Loaded resource', res.uri);
                                     },
                                     error: function() {
@@ -185,6 +185,7 @@ if (typeof DEBUG === 'undefined') {
                                 }, module.ajaxOptions),
                                 // make a request using YQL as a JSONP proxy
                                 makeYqlRequest = function() {
+                                    if (DEBUG) console.log('Making YQL request for ' + res.uri);
                                     options.url = yqlUrl(options.url);
                                     options.dataType = 'jsonp';
                                     parseResponse = function(data) {
@@ -196,11 +197,12 @@ if (typeof DEBUG === 'undefined') {
                             // allow CORS to fallback on YQL
                             if (!jsonp && cors) {
                                 options.error = function() {
-                                    if (DEBUG) console.log('CORS fail, falling back on YQL for ' + res.uri);
+                                    if (DEBUG) console.log('CORS fail for ' + res.uri);
                                     makeYqlRequest();
                                 }
                             }
                             // make the request
+                            if (DEBUG) console.log('Fetching ' + res.uri);
                             if (jsonp || cors) $.ajax(options);
                             else makeYqlRequest();
                         }
@@ -224,16 +226,24 @@ if (typeof DEBUG === 'undefined') {
                     // by default, retrieve and cache all resources
                     init: function() {
                         var module = this,
-                            resources = module.resources = module.$refs.map(function() {
-                                var $ref = $(this),
+                            resources = module.resources = [];
+                        // create Resource for each unique URI
+                        module.resourceMap = module.$refs.toArray()
+                            .reduce(function(agg, el) {
+                                var $ref = $(el),
                                     href = $ref.attr('href');
-                                return Resource({
-                                    module: module,
-                                    uri: module.toDataUri(href), 
-                                    href: href,
-                                    linkText: $ref.text()
-                                });
-                            }).toArray();
+                                if (!(href in agg)) {
+                                    agg[href] = Resource({
+                                        module: module,
+                                        uri: module.toDataUri(href), 
+                                        href: href,
+                                        linkText: $ref.text()
+                                    });
+                                    // add to array
+                                    resources.push(agg[href]);
+                                }
+                                return agg;
+                            }, {});
                         // auto load if requested
                         if (awld.autoLoad) {
                             resources.forEach(function(res) {
