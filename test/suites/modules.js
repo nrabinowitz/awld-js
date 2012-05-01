@@ -21,8 +21,11 @@ casper
     .thenOpen(baseUrl + 'test-custom.html')
     .waitUntilLoaded()
     .then(function() {
-        t.assertLoadCount(1);
+        t.assertLoadCount(2);
         t.assertModuleLoaded('pleiades/place');
+        t.assertModuleLoaded('customModule');
+        t.assertUriFound('custom-api/resource-1.json');
+        t.assertUriLoaded('custom-api/resource-1.json', 'Custom Resource');
     });
     
 casper

@@ -151,7 +151,8 @@
     </target>
     
     <target name="serve-test"
-            depends="start-test-server,
+            depends="build-tests,
+                     start-test-server,
                      launch-in-browser" />
     
     <!-- Test targets -->
@@ -167,7 +168,10 @@
     
     <target name="clean-tests">
         <delete includeemptydirs="true">
-            <fileset dir="test/pages/custom" includes="**/*"/>
+            <fileset dir="test/pages/custom">
+                <include name="**/*" />
+                <exclude name="**/customModule.js" />
+            </fileset>
         </delete>
     </target>
     

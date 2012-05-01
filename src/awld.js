@@ -18,6 +18,8 @@ if (typeof DEBUG === 'undefined') {
 (function(window) {
     if (DEBUG) console.log('AWLD.js loaded');
     
+    var additionalModules = {};
+    
     /**
      * @name awld
      * @namespace
@@ -75,7 +77,18 @@ if (typeof DEBUG === 'undefined') {
          * @type Boolean
          * Whether to auto-load data for all identified URIs
          */
-        autoLoad: true
+        autoLoad: true,
+        
+        /**
+         * Register an additional module for awld.js to load (if its URIs are found)
+         * @function
+         * @param {String} uriRoot      Root for resource URIs managed by this module
+         * @param {String} path         Path to the module, either a fully qualified URL or
+         *                              a path relative to awld.js
+         */
+        registerModule: function(uriRoot, path) {
+            additionalModules[uriRoot] = path;
+        }
     };
     
     /**
@@ -116,6 +129,9 @@ if (typeof DEBUG === 'undefined') {
         
         // load registry and initialize modules
         require(['jquery', 'registry', 'core'], function($, registry, core) {
+        
+            // add any additional modules
+            $.extend(registry, additionalModules);
         
             // deal with jQuery versions if necessary
             if (noConflict) $.noConflict(true);
@@ -203,7 +219,7 @@ if (typeof DEBUG === 'undefined') {
                             }
                             // make the request
                             if (DEBUG) console.log('Fetching ' + res.uri);
-                            if (jsonp || cors) $.ajax(options);
+                            if (jsonp || cors || module.local) $.ajax(options);
                             else makeYqlRequest();
                         }
                     },
@@ -252,11 +268,8 @@ if (typeof DEBUG === 'undefined') {
                         }
                         module.initialize();
                     },
-                    // translate human URI to API URI
-                    toDataUri: function(uri) {
-                        // default: just stick .json on
-                        return uri + '.json';
-                    },
+                    // translate human URI to API URI - default is the same
+                    toDataUri: identity,
                     // parse data returned from server
                     parseData: identity,
                     dataType: 'json',
@@ -290,12 +303,13 @@ if (typeof DEBUG === 'undefined') {
                 // look for modules to initialize
                 $.each(registry, function(uriBase, moduleName) {
                     // look for links with this URI base
-                    var $refs = $('a[href^="' + uriBase + '"]');
+                    var $refs = $('a[href^="' + uriBase + '"]'),
+                        path = moduleName.indexOf('http') === 0 ? moduleName : modulePath + moduleName;
                     if ($refs.length) {
                         if (DEBUG) console.log('Found links for module: ' + moduleName);
                         target++;
                         // load module
-                        require([modulePath + moduleName], function(module) {
+                        require([path], function(module) {
                             // initialize with cached references
                             module.$refs = $refs;
                             module.moduleName = moduleName;
