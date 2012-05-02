@@ -111,15 +111,15 @@ if (typeof DEBUG === 'undefined') {
         // check for jQuery 
         if (!jQuery || oldjQuery) {
             // load if it's not available or doesn't meet min standards
-            paths['jquery'] = localJqueryPath;
+            paths.jquery = localJqueryPath;
             noConflict = oldjQuery;
         } else {
             // register the current jQuery
-            define('jquery', [], function() { return jQuery });
+            define('jquery', [], function() { return jQuery; });
         }
         
         // add mustache - better way to add libraries?
-        paths['mustache'] = libPath + 'mustache.0.5.0-dev';
+        paths.mustache = libPath + 'mustache.0.5.0-dev';
         
         // set up require
         require.config({
@@ -144,8 +144,8 @@ if (typeof DEBUG === 'undefined') {
                             return attr ? $(this).attr(attr) : $(this).text();
                         }).toArray();
                     return text.length > 1 ? text : text[0];
-                }
-            }
+                };
+            };
             
             /**
              * @name awld.Resource
@@ -162,9 +162,9 @@ if (typeof DEBUG === 'undefined') {
                     fetching = false,
                     loaded = false,
                     yqlUrl = function(uri) {
-                        return 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20' + dataType 
-                            +'%20where%20url%3D%22' + uri + '%22&format=' + dataType 
-                            + '&diagnostics=false&callback=?'
+                        return 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20' + dataType +
+                            '%20where%20url%3D%22' + uri + '%22&format=' + dataType +
+                            '&diagnostics=false&callback=?';
                     };
                 return $.extend({
                     // do something when data is loaded
@@ -211,7 +211,7 @@ if (typeof DEBUG === 'undefined') {
                                     parseResponse = function(data) {
                                         data = data && (data.results && data.results[0] || data.query.results) || {};
                                         return parseData(data);
-                                    }
+                                    };
                                     $.ajax(options);
                                 };
                             // allow CORS to fallback on YQL
@@ -219,7 +219,7 @@ if (typeof DEBUG === 'undefined') {
                                 options.error = function() {
                                     if (DEBUG) console.log('CORS fail for ' + res.uri);
                                     makeYqlRequest();
-                                }
+                                };
                             }
                             // make the request
                             if (DEBUG) console.log('Fetching ' + res.uri);
@@ -240,7 +240,7 @@ if (typeof DEBUG === 'undefined') {
              */
             var Module = awld.Module = function(opts) {
                 var cache = {},
-                    identity = function(d) { return d },
+                    identity = function(d) { return d; },
                     noop = function() {};
                 return $.extend({
                     // by default, retrieve and cache all resources
@@ -328,7 +328,7 @@ if (typeof DEBUG === 'undefined') {
             });
             
         });
-    }
+    };
     
     // add to global namespace
     window.awld = awld;

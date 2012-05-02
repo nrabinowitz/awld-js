@@ -29,6 +29,7 @@
         <echo>Building production release</echo>
         <property name="js.settings" value="${config.dir}/settings.production.js"/>
         <property name="js.uglify.compress" value="true"/>
+        <property name="css.less.compress" value="true"/>
         <!-- This won't work with more than 1 core module -->
         <property name="js.rjs.core" value="${production.rjs.core}"/>
         <property name="js.rjs.core.build" value="${tmp.dir}/${production.rjs.core}.js"/>
@@ -59,6 +60,9 @@
     
     <target name="build-less">
         <echo>Processing .less files</echo>
+        <condition property="css.compress.argument" value="--yui-compress" else="">
+            <isset property="css.less.compress"/>
+        </condition>
         <for param="file">
             <fileset dir="${src.dir}" includes="**/*.less" />
             <sequential>
@@ -66,6 +70,7 @@
                   property="css.file"  input="@{file}"
                   regexp="(.*)\.less" replace="\1.css"/>
                 <exec executable="${lessc}" failonerror="true">
+                    <arg line="${css.compress.argument}"/>
                     <arg line="@{file} > ${css.file}"/>
                 </exec>
           </sequential>
@@ -184,6 +189,23 @@
             <arg file="${suite}" />
         </exec>
         <ant target="clean-tests"/>
+    </target>
+    
+    <target name="jshint">
+        <for param="file">
+            <fileset dir="${src.dir}">
+                <include name="**/*.js"/>
+                <exclude name="**/fragments/*"/>
+                <exclude name="**/lib/**"/>
+                <exclude name="**/text.js"/>
+            </fileset>
+            <sequential>
+                <echo>jshint: @{file}</echo>
+                <exec executable="${jshint}" failonerror="true">
+                    <arg line="@{file}"/>
+                </exec>
+          </sequential>
+        </for>
     </target>
     
     <!-- Macros -->

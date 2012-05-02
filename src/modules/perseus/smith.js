@@ -5,7 +5,6 @@ define(['jquery'], function($) {
         name: 'Perseus: References in Smith\'s "Greek and Roman biography and mythology"',
         dataType: 'xml',
         // data format determined through content negotiation
-        toDataUri: function(uri) { return uri },
         corsEnabled: true,
         // get values from the returned XML
         parseData: function(xml) {
@@ -15,7 +14,7 @@ define(['jquery'], function($) {
                 names: names,
                 name: names.join(', or '),
                 description: getText('p')
-            }
+            };
         }
-    }
+    };
 });

@@ -13,7 +13,7 @@ define(['jquery'], function() {
                 description: getText('[property="skos:definition"]'),
                 latlng: getText('[property="gml:pos"]').split(' '),
                 related: getText('[rel*="skos:related"]', 'href')
-            }
+            };
         }
-    }
+    };
 });

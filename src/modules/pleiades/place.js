@@ -12,5 +12,5 @@ define(function() {
             data.name = data.title;
             return data;
         }
-    }
+    };
 });

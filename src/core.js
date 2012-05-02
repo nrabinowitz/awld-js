@@ -16,11 +16,11 @@ define('core',['jquery', 'mustache',
                     return { 
                         name: module.name,
                         res: module.resources.map(function(res) {
-                            return { href: res.href, name: res.name() }
+                            return { href: res.href, name: res.name() };
                         })
-                    }
+                    };
                 }),
-                count = mdata.reduce(function(agg, d) { return agg + d.res.length }, 0),
+                count = mdata.reduce(function(agg, d) { return agg + d.res.length; }, 0),
                 plural = count != 1 ? 's' : '',
                 // render the index
                 $index = $(Mustache.render(indexTemplate, {
@@ -49,9 +49,9 @@ define('core',['jquery', 'mustache',
                     res.ready(function() {
                         if (res.data)
                             $index.find('a[href="' + res.href + '"]').text(res.name());
-                    })
-                })
-            })
+                    });
+                });
+            });
             return $index;
         }
         

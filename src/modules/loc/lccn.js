@@ -5,7 +5,7 @@ define(['jquery'], function($) {
         name: 'Library of Congress Online Catalog',
         dataType: 'xml',
         toDataUri: function(uri) { 
-            return uri + '/dc'
+            return uri + '/dc';
         },
         // get values from the returned XML
         parseData: function(xml) {
@@ -15,7 +15,7 @@ define(['jquery'], function($) {
             return {
                 name: '"' + title + '" by ' + author,
                 description: getText('description')
-            }
+            };
         }
-    }
+    };
 });

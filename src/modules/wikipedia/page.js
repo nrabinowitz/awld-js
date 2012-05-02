@@ -7,7 +7,7 @@ define(function() {
         // not entirely happy with this, but it looks hard to reference specific elements
         toDataUri: function(uri) {
             var pageId = uri.split('/').pop();
-            return 'http://en.wikipedia.org/w/api.php?format=json&action=parse&page=' + pageId + '&callback=?'
+            return 'http://en.wikipedia.org/w/api.php?format=json&action=parse&page=' + pageId + '&callback=?';
         },
         parseData: function(data) {
             data = data && data.parse || {};
@@ -15,7 +15,7 @@ define(function() {
             return {
                 name: data.title,
                 description: $('p', $content).first().html()
-            }
+            };
         }
-    }
+    };
 });
