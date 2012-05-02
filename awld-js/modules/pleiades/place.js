@@ -1,0 +1,1 @@
+define("modules/pleiades/place",[],function(){return{name:"Pleiades Places",toDataUri:function(a){return a+"/json"},corsEnabled:!0,parseData:function(a){return a.name=a.title,a}}})

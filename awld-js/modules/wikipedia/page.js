@@ -1,0 +1,1 @@
+define("modules/wikipedia/page",[],function(){return{name:"Wikipedia Pages",dataType:"jsonp",toDataUri:function(a){var b=a.split("/").pop();return"http://en.wikipedia.org/w/api.php?format=json&action=parse&page="+b+"&callback=?"},parseData:function(a){a=a&&a.parse||{};var b=$("<div>"+a.text["*"]+"</div>");return{name:a.title,description:$("p",b).first().html()}}}})

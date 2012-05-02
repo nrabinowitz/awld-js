@@ -1,0 +1,1 @@
+define("modules/perseus/smith",["jquery"],function(a){return{name:'Perseus: References in Smith\'s "Greek and Roman biography and mythology"',dataType:"xml",toDataUri:function(a){return a},corsEnabled:!0,parseData:function(a){var b=awld.accessor(a),c=b("head persName");return{names:c,name:c.join(", or "),description:b("p")}}}})

@@ -1,0 +1,1 @@
+define("modules/loc/lccn",["jquery"],function(a){return{name:"Library of Congress Online Catalog",dataType:"xml",toDataUri:function(a){return a+"/dc"},parseData:function(a){var b=awld.accessor(a),c=b("title"),d=b("creator");return{name:'"'+c+'" by '+d,description:b("description")}}}})
