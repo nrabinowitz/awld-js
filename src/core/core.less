@@ -2,33 +2,37 @@
 @capsule-background: #FFF;
 @capsule-width: 320px;
 @capsule-radius: 3px;
-@capsule-border: 1px solid #CCC;
-@capsule-padding: 1px 3px;
+@capsule-border-color: #CCC;
+@capsule-border: 1px solid @capsule-border-color;
+@capsule-padding: 2px 6px;
 
 @panel-offset: 13px;
 
 // Mixins
 
-.shadow(@xoff:1px, @yoff:2px, @blur:2px, @spread:0, @color:#666) {
+.box-shadow(@xoff:1px, @yoff:2px, @blur:2px, @spread:0, @color:#666) {
   -moz-box-shadow:    @xoff @yoff @blur @spread @color;
   -webkit-box-shadow: @xoff @yoff @blur @spread @color;
   box-shadow:         @xoff @yoff @blur @spread @color;
 }
 
+.border-radius(@radius) {
+    -webkit-border-radius: @radius;
+    -moz-border-radius: @radius;
+    border-radius: @radius;
+}
+
 .capsule {
-    -moz-border-radius: @capsule-radius;
-    -webkit-border-radius: @capsule-radius;
-    border-radius: @capsule-radius;
+    font-family: Tahoma, Verdana, sans-serif;
+    font-size: 11px;
     border: @capsule-border;
     background: @capsule-background;
-    padding: @capsule-padding;
-    .shadow;
+    .border-radius(@capsule-radius);
+    .box-shadow;
 }
 
 // index element
 .awld {
-    font-family: Tahoma, Verdana, sans-serif;
-    font-size: 11px;
     
     // structural styles
     
@@ -36,7 +40,7 @@
         .capsule;
         display: none;
         position: absolute;
-        margin: @panel-offset 0 0 -4px;
+        margin: @panel-offset 0 0 -1px;
         border-top: 0;
         width: @capsule-width;
     }
@@ -57,7 +61,7 @@
     }
     
     .tab {
-        padding: 1px 3px;
+        padding: @capsule-padding;
         background: @capsule-background;
     }
     
@@ -66,11 +70,11 @@
     hr {
         display: none;
         margin: (@panel-offset + 1) 0 0 0;
-        width: @capsule-width + (@capsule-radius * 2);
+        width: @capsule-width;
         position: absolute;
         border: 0;
         border-top: @capsule-border;
-        .shadow;
+        .box-shadow;
     }
     
     // text styles
@@ -93,3 +97,83 @@
         margin: 0.3em 0;
     }
 }
+
+// Popover styles adapted from Twitter Bootstrap v2.0.3
+// https://github.com/twitter/bootstrap
+// Copyright 2012 Twitter, Inc
+// Licensed under the Apache License v2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+// Designed and built with all the love in the world @twitter by @mdo and @fat.
+#popoverArrow {
+  .top(@arrowWidth: 5px, @color: @capsule-border-color) {
+    bottom: 0;
+    left: 50%;
+    margin-left: -@arrowWidth;
+    border-left: @arrowWidth solid transparent;
+    border-right: @arrowWidth solid transparent;
+    border-top: @arrowWidth solid @color;
+  }
+  .left(@arrowWidth: 5px, @color: @capsule-border-color) {
+    top: 50%;
+    right: 0;
+    margin-top: -@arrowWidth;
+    border-top: @arrowWidth solid transparent;
+    border-bottom: @arrowWidth solid transparent;
+    border-left: @arrowWidth solid @color;
+  }
+  .bottom(@arrowWidth: 5px, @color: @capsule-border-color) {
+    top: 0;
+    left: 50%;
+    margin-left: -@arrowWidth;
+    border-left: @arrowWidth solid transparent;
+    border-right: @arrowWidth solid transparent;
+    border-bottom: @arrowWidth solid @color;
+  }
+  .right(@arrowWidth: 5px, @color: @capsule-border-color) {
+    top: 50%;
+    left: 0;
+    margin-top: -@arrowWidth;
+    border-top: @arrowWidth solid transparent;
+    border-bottom: @arrowWidth solid transparent;
+    border-right: @arrowWidth solid @color;
+  }
+}
+
+.awld-pop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  padding: 5px;
+  &.top    { margin-top:  -5px; }
+  &.right  { margin-left:  5px; }
+  &.bottom { margin-top:   5px; }
+  &.left   { margin-left: -5px; }
+  &.top .arrow    { #popoverArrow > .top(); }
+  &.right .arrow  { #popoverArrow > .right(); }
+  &.bottom .arrow { #popoverArrow > .bottom(); }
+  &.left .arrow   { #popoverArrow > .left();  }
+  .arrow {
+    .box-shadow;
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+}
+.awld-pop-content {
+  width: 320px;
+  height: 120px;
+  overflow: hidden;
+  .capsule;
+  padding: 2px 6px;
+}
+/*
+.awld-pop-content {
+  padding: 14px;
+  background-color: @white;
+  .border-radius(0 0 3px 3px);
+  .background-clip(padding-box);
+  p, ul, ol {
+    margin-bottom: 0;
+  }
+}*/

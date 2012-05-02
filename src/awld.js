@@ -246,30 +246,38 @@ if (typeof DEBUG === 'undefined') {
                     // by default, retrieve and cache all resources
                     init: function() {
                         var module = this,
-                            resources = module.resources = [];
-                        // create Resource for each unique URI
-                        module.resourceMap = module.$refs.toArray()
-                            .reduce(function(agg, el) {
-                                var $ref = $(el),
-                                    href = $ref.attr('href');
-                                if (!(href in agg)) {
-                                    agg[href] = Resource({
-                                        module: module,
-                                        uri: module.toDataUri(href), 
-                                        href: href,
-                                        linkText: $ref.text()
-                                    });
-                                    // add to array
-                                    resources.push(agg[href]);
-                                }
-                                return agg;
-                            }, {});
+                            resources = module.resources = [],
+                            // create Resource for each unique URI
+                            resourceMap = module.resourceMap = module.$refs.toArray()
+                                .reduce(function(agg, el) {
+                                    var $ref = $(el),
+                                        href = $ref.attr('href');
+                                    if (!(href in agg)) {
+                                        agg[href] = Resource({
+                                            module: module,
+                                            uri: module.toDataUri(href), 
+                                            href: href,
+                                            linkText: $ref.text()
+                                        });
+                                        // add to array
+                                        resources.push(agg[href]);
+                                    }
+                                    return agg;
+                                }, {});
                         // auto load if requested
                         if (awld.autoLoad) {
                             resources.forEach(function(res) {
                                 res.fetch();
                             });
                         }
+                        // add pop-up for each resource
+                        module.$refs.hover(function() {
+                            var $ref = $(this),
+                                res = resourceMap[$ref.attr('href')];
+                            core.showPopover($ref, res.name());
+                        }, function() {
+                            core.hidePopover();
+                        });
                         module.initialize();
                     },
                     // translate human URI to API URI - default is the same

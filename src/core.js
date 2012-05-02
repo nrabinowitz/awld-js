@@ -1,9 +1,10 @@
 // Core module: Displays index
 
 define('core',['jquery', 'mustache',
-               'text!core/core.css', 'text!core/index.html'], 
-    function($, Mustache, styles, indexTemplate) {
-        var modules;
+               'text!core/core.css', 'text!core/index.html', 'text!core/pop.html'], 
+    function($, Mustache, styles, indexTemplate, popTemplate) {
+        var modules,
+            $pop;
         
         // load stylesheet
         function loadStylesheet() {
@@ -55,12 +56,67 @@ define('core',['jquery', 'mustache',
             return $index;
         }
         
+        // add the index if the placeholder is found
         function addIndex(selector) {
             var $el = $(selector).first();
             if ($el.length) {
                 loadStylesheet();
                 $el.append(makeIndex());
             }
+        }
+        
+        // show a pop-up window with resource details.
+        // Elements adapted from Twitter Bootstrap v2.0.3
+        // https://github.com/twitter/bootstrap
+        // Copyright 2012 Twitter, Inc
+        // Licensed under the Apache License v2.0
+        // http://www.apache.org/licenses/LICENSE-2.0
+        // Designed and built with all the love in the world @twitter by @mdo and @fat.
+        function showPopover($ref, content) {
+            // get position
+            var pos = $.extend({}, $ref.offset(), {
+                    width: $ref[0].offsetWidth,
+                    height: $ref[0].offsetHeight
+                }),
+                constrain = function(num) {
+                    return Math.max(num, 0);
+                },
+                // XXX: determine based on ref position
+                placement = 'top',
+                actualWidth, actualHeight;
+            // get window
+            $pop = $pop || $(popTemplate);
+            // set content
+            $('.awld-pop-content', $pop)
+                .html(content);
+            // set up position
+            $pop.remove()
+                .css({ top: 0, left: 0, display: 'block' })
+                .appendTo(document.body);
+            actualWidth = $pop[0].offsetWidth,
+            actualHeight = $pop[0].offsetHeight;
+            // set position
+            switch (placement) {
+              case 'bottom':
+                tp = {top: pos.top + pos.height, left: constrain(pos.left + pos.width / 2 - actualWidth / 2)}
+                break
+              case 'top':
+                tp = {top: pos.top - actualHeight, left: constrain(pos.left + pos.width / 2 - actualWidth / 2)}
+                break
+              case 'left':
+                tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth}
+                break
+              case 'right':
+                tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width}
+                break
+            }
+            $pop.css(tp)
+                .addClass(placement);
+            console.log($pop);
+        }
+        
+        function hidePopover() {
+            if ($pop) $pop.remove();
         }
         
         // initialize core
@@ -73,6 +129,8 @@ define('core',['jquery', 'mustache',
         return { 
             name: 'core',
             addIndex: addIndex,
+            showPopover: showPopover,
+            hidePopover: hidePopover,
             init: init
         };
 });
