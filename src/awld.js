@@ -276,7 +276,7 @@ if (typeof DEBUG === 'undefined') {
                                 res = resourceMap[$ref.attr('href')];
                             core.showPopover($ref, res.name());
                         }, function() {
-                            core.hidePopover();
+                            // core.hidePopover();
                         });
                         module.initialize();
                     },

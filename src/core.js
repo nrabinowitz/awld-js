@@ -2,12 +2,14 @@
 
 define('core',['jquery', 'mustache',
                'text!core/core.css', 'text!core/index.html', 'text!core/pop.html'], 
-    function($, Mustache, styles, indexTemplate, popTemplate) {
+    function($, Mustache, coreStyles, indexTemplate, popTemplate) {
         var modules,
             $pop;
         
         // load stylesheet
-        function loadStylesheet() {
+        function loadStyles(styles) {
+            // put in baseUrl (images, etc)
+            styles = styles.replace(/\/\/\//g, awld.baseUrl);
             var $style = $('<style>' + styles + '</style>').appendTo('head');
         }
         
@@ -59,10 +61,7 @@ define('core',['jquery', 'mustache',
         // add the index if the placeholder is found
         function addIndex(selector) {
             var $el = $(selector).first();
-            if ($el.length) {
-                loadStylesheet();
-                $el.append(makeIndex());
-            }
+            if ($el.length) $el.append(makeIndex());
         }
         
         // show a pop-up window with resource details.
@@ -82,12 +81,12 @@ define('core',['jquery', 'mustache',
                     return Math.max(num, 0);
                 },
                 // XXX: determine based on ref position
-                placement = 'top',
+                placement = 'left',
                 actualWidth, actualHeight;
             // get window
             $pop = $pop || $(popTemplate);
             // set content
-            $('.awld-pop-content', $pop)
+            $('.awld-content', $pop)
                 .html(content);
             // set up position
             $pop.remove()
@@ -122,12 +121,13 @@ define('core',['jquery', 'mustache',
         // initialize core
         function init(loadedModules) {
             modules = loadedModules;
-            // look for index placeholder
+            if (modules.length) loadStyles(coreStyles);
             addIndex('.awld-index');
         }
         
         return { 
             name: 'core',
+            loadStyles: loadStyles,
             addIndex: addIndex,
             showPopover: showPopover,
             hidePopover: hidePopover,

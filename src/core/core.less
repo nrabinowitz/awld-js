@@ -7,6 +7,8 @@
 @capsule-padding: 2px 6px;
 
 @panel-offset: 13px;
+@popup-arrow-height: 15px;
+@popup-arrow-width: 28px;
 
 // Mixins
 
@@ -105,37 +107,32 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 // Designed and built with all the love in the world @twitter by @mdo and @fat.
 #popoverArrow {
-  .top(@arrowWidth: 5px, @color: @capsule-border-color) {
+  .top() {
     bottom: 0;
     left: 50%;
-    margin-left: -@arrowWidth;
-    border-left: @arrowWidth solid transparent;
-    border-right: @arrowWidth solid transparent;
-    border-top: @arrowWidth solid @color;
+    margin-bottom: -(@popup-arrow-height - 6);
   }
-  .left(@arrowWidth: 5px, @color: @capsule-border-color) {
-    top: 50%;
-    right: 0;
-    margin-top: -@arrowWidth;
-    border-top: @arrowWidth solid transparent;
-    border-bottom: @arrowWidth solid transparent;
-    border-left: @arrowWidth solid @color;
-  }
-  .bottom(@arrowWidth: 5px, @color: @capsule-border-color) {
+  .bottom() {
     top: 0;
     left: 50%;
-    margin-left: -@arrowWidth;
-    border-left: @arrowWidth solid transparent;
-    border-right: @arrowWidth solid transparent;
-    border-bottom: @arrowWidth solid @color;
+    margin-top: -(@popup-arrow-height - 6);
+    background-position: 0 -@popup-arrow-height;
   }
-  .right(@arrowWidth: 5px, @color: @capsule-border-color) {
+  .left() {
+    top: 50%;
+    right: 0;
+    width: @popup-arrow-height;
+    height: @popup-arrow-width;
+    margin: -(@popup-arrow-width / 2) -(@popup-arrow-height - 6) 0 0;
+    background-position: -(@popup-arrow-width + @popup-arrow-height) 0;
+  }
+  .right() {
     top: 50%;
     left: 0;
-    margin-top: -@arrowWidth;
-    border-top: @arrowWidth solid transparent;
-    border-bottom: @arrowWidth solid transparent;
-    border-right: @arrowWidth solid @color;
+    width: @popup-arrow-height;
+    height: @popup-arrow-width;
+    margin: -(@popup-arrow-width / 2) 0 0 -(@popup-arrow-height - 6);
+    background-position: -@popup-arrow-width 0;
   }
 }
 
@@ -145,35 +142,26 @@
   left: 0;
   display: none;
   padding: 5px;
-  &.top    { margin-top:  -5px; }
-  &.right  { margin-left:  5px; }
-  &.bottom { margin-top:   5px; }
-  &.left   { margin-left: -5px; }
+  &.top    { margin-top:  -7px; }
+  &.right  { margin-left:  12px; }
+  &.bottom { margin-top:   10px; }
+  &.left   { margin-left: -12px; }
   &.top .arrow    { #popoverArrow > .top(); }
   &.right .arrow  { #popoverArrow > .right(); }
   &.bottom .arrow { #popoverArrow > .bottom(); }
   &.left .arrow   { #popoverArrow > .left();  }
   .arrow {
-    .box-shadow;
     position: absolute;
-    width: 0;
-    height: 0;
+    margin-left: -(@popup-arrow-width / 2);
+    height: @popup-arrow-height;
+    width: @popup-arrow-width;
+    background: url(///core/images/arrow.png) no-repeat 0 0;
   }
 }
-.awld-pop-content {
+.awld-pop-inner {
   width: 320px;
   height: 120px;
   overflow: hidden;
   .capsule;
   padding: 2px 6px;
 }
-/*
-.awld-pop-content {
-  padding: 14px;
-  background-color: @white;
-  .border-radius(0 0 3px 3px);
-  .background-clip(padding-box);
-  p, ul, ol {
-    margin-bottom: 0;
-  }
-}*/
