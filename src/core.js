@@ -4,7 +4,8 @@ define('core',['jquery', 'mustache',
                'text!core/core.css', 'text!core/index.html', 'text!core/pop.html'], 
     function($, Mustache, coreStyles, indexTemplate, popTemplate) {
         var modules,
-            $pop;
+            $pop,
+            popTimer;
         
         // load stylesheet
         function loadStyles(styles) {
@@ -116,16 +117,15 @@ define('core',['jquery', 'mustache',
         
         // add functionality to show popups on hover
         function addPopup($ref, contentFunction) {
-            var timer,
-                clearTimer = function() {
-                    if (timer) clearTimeout(timer);
-                    timer = 0;
+            var clearTimer = function() {
+                    if (popTimer) clearTimeout(popTimer);
+                    popTimer = 0;
                 },
                 startTimer = function() {
                     clearTimer();
-                    timer = setTimeout(function() {
+                    popTimer = setTimeout(function() {
                         hidePopup();
-                        timer = 0;
+                        popTimer = 0;
                     }, 2000);
                 };
                 
