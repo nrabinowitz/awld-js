@@ -71,18 +71,7 @@ define('core',['jquery', 'mustache',
         // Licensed under the Apache License v2.0
         // http://www.apache.org/licenses/LICENSE-2.0
         // Designed and built with all the love in the world @twitter by @mdo and @fat.
-        function showPopover($ref, content) {
-            // get position
-            var pos = $.extend({}, $ref.offset(), {
-                    width: $ref[0].offsetWidth,
-                    height: $ref[0].offsetHeight
-                }),
-                constrain = function(num) {
-                    return Math.max(num, 0);
-                },
-                // XXX: determine based on ref position
-                placement = 'left',
-                actualWidth, actualHeight;
+        function showPopup($ref, content) {
             // get window
             $pop = $pop || $(popTemplate);
             // set content
@@ -92,30 +81,70 @@ define('core',['jquery', 'mustache',
             $pop.remove()
                 .css({ top: 0, left: 0, display: 'block' })
                 .appendTo(document.body);
-            actualWidth = $pop[0].offsetWidth,
-            actualHeight = $pop[0].offsetHeight;
-            // set position
-            switch (placement) {
-              case 'bottom':
-                tp = {top: pos.top + pos.height, left: constrain(pos.left + pos.width / 2 - actualWidth / 2)}
-                break
-              case 'top':
-                tp = {top: pos.top - actualHeight, left: constrain(pos.left + pos.width / 2 - actualWidth / 2)}
-                break
-              case 'left':
-                tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth}
-                break
-              case 'right':
-                tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width}
-                break
-            }
-            $pop.css(tp)
-                .addClass(placement);
-            console.log($pop);
+            // determine position
+            var pos = $.extend({}, $ref.offset(), {
+                    width: $ref[0].offsetWidth,
+                    height: $ref[0].offsetHeight
+                }),
+                actualWidth = $pop[0].offsetWidth,
+                actualHeight = $pop[0].offsetHeight,
+                winw = $(window).width(),
+                padding = 5,
+                hpos = pos.left + pos.width / 2 - actualWidth / 2,
+                vpos = pos.top + pos.height / 2 - actualHeight / 2,
+                // set position styles
+                posStyle = hpos < padding ? // too far left?
+                    // position: right
+                    {placement: 'right', top: vpos, left: pos.left + pos.width} :
+                        hpos + actualWidth + padding > winw ? // too far right?
+                            // position: left
+                            {placement: 'left', top: vpos, left: pos.left - actualWidth} :
+                                pos.top - actualHeight < padding + window.scrollY ? // too far up?
+                                    // position: bottom
+                                    {placement: 'bottom', top: pos.top + pos.height, left: hpos} :
+                                        // otherwise, position: top
+                                        {placement: 'top', top: pos.top - actualHeight, left: hpos};
+                                        
+            $pop.css(posStyle)
+                .removeClass('top bottom left right')
+                .addClass(posStyle.placement);
         }
         
-        function hidePopover() {
+        function hidePopup() {
             if ($pop) $pop.remove();
+        }
+        
+        // add functionality to show popups on hover
+        function addPopup($ref, contentFunction) {
+            var timer,
+                clearTimer = function() {
+                    if (timer) clearTimeout(timer);
+                    timer = 0;
+                },
+                startTimer = function() {
+                    clearTimer();
+                    timer = setTimeout(function() {
+                        hidePopup();
+                        timer = 0;
+                    }, 2000);
+                };
+                
+            $ref.hover(function() {
+                var content = contentFunction();
+                if (content) {
+                    clearTimer();
+                    showPopup($ref, content);
+                    // set handlers on the popup
+                    $pop.bind('mouseover', clearTimer)
+                        .bind('mouseleave', function() {
+                            clearTimer();
+                            hidePopup();
+                            $pop.unbind('mouseleave mouseover');
+                        });
+                }
+            }, function() {
+                startTimer();
+            });
         }
         
         // initialize core
@@ -129,8 +158,9 @@ define('core',['jquery', 'mustache',
             name: 'core',
             loadStyles: loadStyles,
             addIndex: addIndex,
-            showPopover: showPopover,
-            hidePopover: hidePopover,
+            showPopup: showPopup,
+            hidePopup: hidePopup,
+            addPopup: addPopup,
             init: init
         };
 });
