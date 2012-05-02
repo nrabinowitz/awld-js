@@ -12,21 +12,43 @@ define('core',['jquery', 'mustache',
         
         // create the index of known references
         function makeIndex() {
-            var $index = $(Mustache.render(indexTemplate, {
-                modules: modules.map(function(module) {
+            var mdata = modules.map(function(module) {
                     return { 
                         name: module.name,
-                        resources: module.resources.map(function(res) {
+                        res: module.resources.map(function(res) {
                             return { href: res.href, name: res.name() }
                         })
                     }
-                })
-            }));
+                }),
+                count = mdata.reduce(function(agg, d) { return agg + d.res.length }, 0),
+                plural = count != 1 ? 's' : '',
+                // render the index
+                $index = $(Mustache.render(indexTemplate, {
+                    c: count,
+                    p: plural,
+                    m: mdata
+                })),
+                // cache refs
+                $panel = $('.panel', $index)
+                    .add('hr', $index),
+                $content = $panel.find('.module');
+                
+            // add toggle handler
+            $('span.refs', $index).toggle(function() {
+                $panel.show();
+                $content.slideToggle();
+            }, function() {
+                $content.slideToggle(function() {
+                    $panel.hide();
+                });
+            });
+            
             // update names when loaded
             modules.forEach(function(module) {
                 module.resources.forEach(function(res) {
                     res.ready(function() {
-                        $index.find('a[href="' + res.href + '"]').text(res.name());
+                        if (res.data)
+                            $index.find('a[href="' + res.href + '"]').text(res.name());
                     })
                 })
             })

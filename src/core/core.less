@@ -1,23 +1,92 @@
+// Settings
+@capsule-background: #FFF;
+@capsule-width: 320px;
+@capsule-radius: 3px;
+@capsule-border: 1px solid #CCC;
+@capsule-padding: 1px 3px;
+
+@panel-offset: 13px;
+
+// Mixins
+
+.shadow(@xoff:1px, @yoff:2px, @blur:2px, @spread:0, @color:#666) {
+  -moz-box-shadow:    @xoff @yoff @blur @spread @color;
+  -webkit-box-shadow: @xoff @yoff @blur @spread @color;
+  box-shadow:         @xoff @yoff @blur @spread @color;
+}
+
+.capsule {
+    -moz-border-radius: @capsule-radius;
+    -webkit-border-radius: @capsule-radius;
+    border-radius: @capsule-radius;
+    border: @capsule-border;
+    background: @capsule-background;
+    padding: @capsule-padding;
+    .shadow;
+}
+
+// index element
 .awld {
-    display: block;
-    background: #FED;
-    padding: 1em;
-    -moz-border-radius: 10px;
-    border-radius: 10px;
-    border: 1px solid #986;
-    width: 30em;
-    font-face: Tahoma, Verdana, sans-serif;
-    font-size: .8em;
+    font-family: Tahoma, Verdana, sans-serif;
+    font-size: 11px;
     
-    h2, h3, h4 {
-        font-size: 1em;
-        margin: .5em 0 0 0;
+    // structural styles
+    
+    .panel {
+        .capsule;
+        display: none;
+        position: absolute;
+        margin: @panel-offset 0 0 -4px;
+        border-top: 0;
+        width: @capsule-width;
     }
     
-    h1 {
-        font-size: 1.4em;
-        font-weight: normal;
-        margin: 0;
+    .index {
+        .capsule;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .module {
+        padding: @capsule-padding;
+        display: none;
+        
+        &:last-child {
+            padding-bottom: .8em;
+        }
+    }
+    
+    .tab {
+        padding: 1px 3px;
+        background: @capsule-background;
+    }
+    
+    // this is a bit of a hack to get the top border visible
+    
+    hr {
+        display: none;
+        margin: (@panel-offset + 1) 0 0 0;
+        width: @capsule-width + (@capsule-radius * 2);
+        position: absolute;
+        border: 0;
+        border-top: @capsule-border;
+        .shadow;
+    }
+    
+    // text styles
+    
+    a, .refs {
+        color: #900;
+        cursor: pointer;
+        
+        &:hover {
+            color: #D00;
+        }
+    }
+    
+    h2 {
+        font-size: 1em;
+        margin: .5em 0 0 0;
     }
     
     p {

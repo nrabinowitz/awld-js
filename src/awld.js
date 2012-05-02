@@ -187,7 +187,11 @@ if (typeof DEBUG === 'undefined') {
                                     dataType: dataType,
                                     success: function(data) {
                                         // save data
-                                        res.data = parseResponse(data);
+                                        try {
+                                            res.data = parseResponse(data);
+                                        } catch(e) {
+                                            if (DEBUG) console.log('Error loading data for ' + res.uri,  data, e);
+                                        }
                                         // invoke any handlers
                                         readyHandlers.forEach(function(f) { 
                                             f(res);
