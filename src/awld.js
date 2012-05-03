@@ -112,6 +112,7 @@ if (typeof DEBUG === 'undefined') {
                 awld[prop] = settings[prop];
             }
         }
+        
     },
     
     /**
@@ -221,6 +222,8 @@ if (typeof DEBUG === 'undefined') {
                                         // save data
                                         try {
                                             res.data = parseResponse(data);
+                                            // potentially set type
+                                            if (!res.type) res.type = module.getType(data);
                                         } catch(e) {
                                             if (DEBUG) console.error('Error loading data for ' + res.uri,  data, e);
                                         }
@@ -283,13 +286,15 @@ if (typeof DEBUG === 'undefined') {
                         module.resourceMap = module.$refs.toArray()
                             .reduce(function(agg, el) {
                                 var $ref = $(el),
-                                    href = $ref.attr('href');
+                                    href = $ref.attr('href'),
+                                    type = $ref.attr('typeof') || module.type;
                                 if (!(href in agg)) {
                                     agg[href] = Resource({
                                         module: module,
-                                        uri: module.toDataUri(href), 
+                                        uri: module.toDataUri(href),
                                         href: href,
-                                        linkText: $ref.text()
+                                        linkText: $ref.text(),
+                                        type: type
                                     });
                                     // add to array
                                     resources.push(agg[href]);
@@ -322,6 +327,8 @@ if (typeof DEBUG === 'undefined') {
                     toDataUri: identity,
                     // parse data returned from server
                     parseData: identity,
+                    // set type based on data
+                    getType: noop,
                     dataType: 'json',
                     resourceName: identity,
                     // detail view for popup window

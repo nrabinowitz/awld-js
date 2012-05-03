@@ -1,8 +1,11 @@
 // Core UI elements: index, popup
 
-define('ui',['jquery', 'mustache',
-               'text!ui/core.css', 
-               'text!ui/index.html', 'text!ui/pop.html', 'text!ui/details.html'], 
+define('ui',['jquery', 
+             'mustache',
+             'text!ui/core.css', 
+             'text!ui/index.html', 
+             'text!ui/pop.html', 
+             'text!ui/details.html'], 
     function($, Mustache, coreStyles, indexTemplate, popTemplate, detailTemplate) {
         var modules,
             $pop,
