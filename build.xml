@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project name="awldjs-website" default="deploy">
+    
+    <property name="ajs.src.dir" value="../awld-js"/>
+    <property name="ajs.website.dir" value="."/>
+    <property name="ajs.target.subdir" value="awld-js"/>
+    <property name="ajs.target.dir" value="${ajs.website.dir}/${ajs.target.subdir}"/>
+    
+    <target name="deploy"
+            depends="build-production,
+                     deploy-github"/>
+    
+    <!-- Build production release and copy to website -->
+    <target name="build-production">
+        <ant dir="${ajs.src.dir}" target="build-production" />
+        <copy todir="${ajs.target.dir}" overwrite="true">
+            <fileset dir="${ajs.src.dir}/release/latest"/>
+        </copy>
+    </target>
+    
+    
+    <!-- Deploy to GitHub Pages -->
+    
+    <target name="deploy-github">
+        <git command="add" dir="${ajs.website.dir}">
+            <args>
+                <arg value="${ajs.target.subdir}/."/>
+            </args>
+        </git>
+        <git command="commit" dir="${ajs.website.dir}">
+            <args>
+                <arg value="-m 'Latest production build'"/>
+            </args>
+        </git>
+        <git command="push" dir="${ajs.website.dir}">
+            <args>
+                <arg value="origin"/>
+                <arg value="gh-pages"/>
+            </args>
+        </git>
+    </target>
+    
+    <!-- define git macro -->
+    <property name="git.exe" value="C:/Program Files/Git/bin/git.exe"/>
+    
+    <macrodef name="git">
+        <attribute name="command" />
+        <attribute name="dir" default="" />
+        <element name="args" optional="true" />
+        <sequential>
+            <echo message="git @{command}" />
+            <exec executable="${git.exe}" dir="@{dir}">
+                <arg value="@{command}" />
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+    
+</project>
