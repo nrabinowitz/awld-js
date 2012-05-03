@@ -80,6 +80,12 @@ if (typeof DEBUG === 'undefined') {
         autoLoad: true,
         
         /**
+         * @name alwd.scope
+         * @type String|DOM Element
+         * Selector or element to limit the scope of automatic resource identification.
+         */
+        
+        /**
          * Register an additional module for awld.js to load (if its URIs are found)
          * @function
          * @param {String} uriRoot      Root for resource URIs managed by this module
@@ -95,10 +101,13 @@ if (typeof DEBUG === 'undefined') {
      * @function
      * Initialize the library, loading and running modules based on page content
      */
-    awld.init = function() {
+    awld.init = function(opts) {
         if (DEBUG) console.log('Initializing library');
         
-        var jQuery = window.jQuery,
+        // parse arguments
+        var scope = typeof opts == 'string' ? opts : awld.scope,
+            // check for existing jQuery
+            jQuery = window.jQuery,
             // check for old versions of jQuery
             oldjQuery = jQuery && !!jQuery.fn.jquery.match(/^1\.[0-4]/),
             paths = awld.paths,
@@ -319,10 +328,15 @@ if (typeof DEBUG === 'undefined') {
             // wrap in ready, as this looks through the DOM
             $(function() {
             
+                // constrain scope based on markup
+                var scopeSelector = '.awld-scope';
+                if (!scope && $(scopeSelector).length)
+                    scope = scopeSelector;
+            
                 // look for modules to initialize
                 $.each(registry, function(uriBase, moduleName) {
                     // look for links with this URI base
-                    var $refs = $('a[href^="' + uriBase + '"]'),
+                    var $refs = $('a[href^="' + uriBase + '"]', scope),
                         path = moduleName.indexOf('http') === 0 ? moduleName : modulePath + moduleName;
                     if ($refs.length) {
                         if (DEBUG) console.log('Found links for module: ' + moduleName);

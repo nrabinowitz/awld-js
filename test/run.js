@@ -73,6 +73,13 @@ t.assertModuleLoaded = function(module) {
     t.assert(success, 'Module "' + module + '" is loaded');
 };
 
+t.assertModuleNotLoaded = function(module) {
+    var success = casper.evaluate(function(module) {
+        return !(module in awld.moduleMap);
+    }, { module: module });
+    t.assert(success, 'Module "' + module + '" is not loaded');
+};
+
 t.assertUriFound = function(uri) {
     var success = casper.evaluate(function(uri) {
         return !!$('#awld-index a[href="' + uri + '"]').length
