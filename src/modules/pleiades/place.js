@@ -10,6 +10,7 @@ define(function() {
         // add name to data
         parseData: function(data) {
             data.name = data.title;
+            data.latlon = data.reprPoint.reverse();
             return data;
         }
     };

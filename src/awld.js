@@ -190,7 +190,7 @@ if (typeof DEBUG === 'undefined') {
                                         try {
                                             res.data = parseResponse(data);
                                         } catch(e) {
-                                            if (DEBUG) console.log('Error loading data for ' + res.uri,  data, e);
+                                            if (DEBUG) console.error('Error loading data for ' + res.uri,  data, e);
                                         }
                                         // invoke any handlers
                                         readyHandlers.forEach(function(f) { 
@@ -200,7 +200,7 @@ if (typeof DEBUG === 'undefined') {
                                         if (DEBUG) console.log('Loaded resource', res.uri);
                                     },
                                     error: function() {
-                                        if (DEBUG) console.log('Resource request failed', arguments);
+                                        if (DEBUG) console.error('Resource request failed', arguments);
                                     }
                                 }, module.ajaxOptions),
                                 // make a request using YQL as a JSONP proxy
@@ -217,7 +217,7 @@ if (typeof DEBUG === 'undefined') {
                             // allow CORS to fallback on YQL
                             if (!jsonp && cors) {
                                 options.error = function() {
-                                    if (DEBUG) console.log('CORS fail for ' + res.uri);
+                                    if (DEBUG) console.warn('CORS fail for ' + res.uri);
                                     makeYqlRequest();
                                 };
                             }
@@ -276,8 +276,11 @@ if (typeof DEBUG === 'undefined') {
                         module.$refs.each(function() {
                             var $ref = $(this),
                                 res = $ref.data('resource');
-                            core.addPopup($ref, function() {
-                                return res.name(); // module.detailView(res);
+                            // do a jig to deal with unloaded resources
+                            core.addPopup($ref, function(callback) {
+                                res.ready(function() {
+                                    callback(module.detailView(res));
+                                });
                             });
                         });
                         // hook for further initialization
@@ -289,7 +292,8 @@ if (typeof DEBUG === 'undefined') {
                     parseData: identity,
                     dataType: 'json',
                     resourceName: identity,
-                    detailView: noop,
+                    // detail view for popup window
+                    detailView: core.detailView,
                     initialize: noop
                 }, opts);
             };

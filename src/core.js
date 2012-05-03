@@ -1,11 +1,22 @@
 // Core module: Displays index
 
 define('core',['jquery', 'mustache',
-               'text!core/core.css', 'text!core/index.html', 'text!core/pop.html'], 
-    function($, Mustache, coreStyles, indexTemplate, popTemplate) {
+               'text!core/core.css', 
+               'text!core/index.html', 'text!core/pop.html', 'text!core/details.html'], 
+    function($, Mustache, coreStyles, indexTemplate, popTemplate, detailTemplate) {
         var modules,
             $pop,
             popTimer;
+            
+        // utility - make a map of common resource data
+        function resMap(res) {
+            var data = res.data || {};
+            return $.extend({}, data, { 
+                href: res.href, 
+                name: res.name(),
+                haslatlon: !!data.latlon
+            });
+        }
         
         // load stylesheet
         function loadStyles(styles) {
@@ -19,9 +30,7 @@ define('core',['jquery', 'mustache',
             var mdata = modules.map(function(module) {
                     return { 
                         name: module.name,
-                        res: module.resources.map(function(res) {
-                            return { href: res.href, name: res.name() };
-                        })
+                        res: module.resources.map(resMap)
                     };
                 }),
                 count = mdata.reduce(function(agg, d) { return agg + d.res.length; }, 0),
@@ -39,6 +48,7 @@ define('core',['jquery', 'mustache',
                 
             // add toggle handler
             $('span.refs', $index).toggle(function() {
+                hidePopup();
                 $panel.show();
                 $content.slideToggle();
             }, function() {
@@ -76,8 +86,18 @@ define('core',['jquery', 'mustache',
             // get window
             $pop = $pop || $(popTemplate);
             // set content
-            $('.awld-content', $pop)
-                .html(content);
+            function setContent(html) {
+                $('.awld-content', $pop)
+                    .html(html);
+                $('.awld-pop-inner', $pop)
+                    .toggleClass('loading', !html)
+            }
+            // clear previous content
+            setContent('');
+            if ($.isFunction(content)) {
+                // this is a promise; give it a callback
+                content(setContent);
+            } else setContent(content);
             // set up position
             $pop.remove()
                 .css({ top: 0, left: 0, display: 'block' })
@@ -116,7 +136,7 @@ define('core',['jquery', 'mustache',
         }
         
         // add functionality to show popups on hover
-        function addPopup($ref, contentFunction) {
+        function addPopup($ref, content) {
             var clearTimer = function() {
                     if (popTimer) clearTimeout(popTimer);
                     popTimer = 0;
@@ -126,25 +146,27 @@ define('core',['jquery', 'mustache',
                     popTimer = setTimeout(function() {
                         hidePopup();
                         popTimer = 0;
-                    }, 2000);
+                    }, 1500);
                 };
                 
             $ref.hover(function() {
-                var content = contentFunction();
-                if (content) {
-                    clearTimer();
-                    showPopup($ref, content);
-                    // set handlers on the popup
-                    $pop.bind('mouseover', clearTimer)
-                        .bind('mouseleave', function() {
-                            clearTimer();
-                            hidePopup();
-                            $pop.unbind('mouseleave mouseover');
-                        });
-                }
+                clearTimer();
+                showPopup($ref, content);
+                // set handlers on the popup
+                $pop.bind('mouseover', clearTimer)
+                    .bind('mouseleave', function() {
+                        clearTimer();
+                        hidePopup();
+                        $pop.unbind('mouseleave mouseover');
+                    });
             }, function() {
                 startTimer();
             });
+        }
+        
+        // simple detail view
+        function detailView(res) {
+            return Mustache.render(detailTemplate, resMap(res));
         }
         
         // initialize core
@@ -161,6 +183,7 @@ define('core',['jquery', 'mustache',
             showPopup: showPopup,
             hidePopup: hidePopup,
             addPopup: addPopup,
+            detailView: detailView,
             init: init
         };
 });

@@ -11,7 +11,7 @@ define(['jquery'], function() {
             return {
                 name: getText('[property="skos:prefLabel"]'),
                 description: getText('[property="skos:definition"]'),
-                latlng: getText('[property="gml:pos"]').split(' '),
+                latlon: getText('[property="gml:pos"]').split(' '),
                 related: getText('[rel*="skos:related"]', 'href')
             };
         }

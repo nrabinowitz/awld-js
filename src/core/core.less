@@ -24,7 +24,7 @@
     border-radius: @radius;
 }
 
-.capsule {
+.capsule() {
     font-family: Tahoma, Verdana, sans-serif;
     font-size: 11px;
     border: @capsule-border;
@@ -137,31 +137,46 @@
 }
 
 .awld-pop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: none;
-  padding: 5px;
-  &.top    { margin-top:  -7px; }
-  &.right  { margin-left:  12px; }
-  &.bottom { margin-top:   10px; }
-  &.left   { margin-left: -12px; }
-  &.top .arrow    { #popoverArrow > .top(); }
-  &.right .arrow  { #popoverArrow > .right(); }
-  &.bottom .arrow { #popoverArrow > .bottom(); }
-  &.left .arrow   { #popoverArrow > .left();  }
-  .arrow {
     position: absolute;
-    margin-left: -(@popup-arrow-width / 2);
-    height: @popup-arrow-height;
-    width: @popup-arrow-width;
-    background: url(///core/images/arrow.png) no-repeat 0 0;
-  }
+    top: 0;
+    left: 0;
+    display: none;
+    padding: 5px;
+    
+    &.top    { margin-top:  -7px; }
+    &.right  { margin-left:  12px; }
+    &.bottom { margin-top:   10px; }
+    &.left   { margin-left: -12px; }
+    
+    &.top .arrow    { #popoverArrow > .top(); }
+    &.right .arrow  { #popoverArrow > .right(); }
+    &.bottom .arrow { #popoverArrow > .bottom(); }
+    &.left .arrow   { #popoverArrow > .left();  }
+    
+    .arrow {
+        position: absolute;
+        margin-left: -(@popup-arrow-width / 2);
+        height: @popup-arrow-height;
+        width: @popup-arrow-width;
+        background: url(///core/images/arrow.png) no-repeat 0 0;
+    }
 }
+
 .awld-pop-inner {
-  width: 320px;
-  height: 120px;
-  overflow: hidden;
-  .capsule;
-  padding: 2px 6px;
+    width: 280px;
+    height: 180px;
+    overflow: hidden;
+    .capsule;
+    padding: 2px 6px;
+    
+    &.loading {
+        background-image: url(///core/images/ajax-loader.gif);
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+    }
+    
+    .media {
+        margin: 1em 1em 0 0;
+        float: left;
+    }
 }
