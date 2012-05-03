@@ -128,7 +128,7 @@ if (typeof DEBUG === 'undefined') {
         });
         
         // load registry and initialize modules
-        require(['jquery', 'registry', 'core'], function($, registry, core) {
+        require(['jquery', 'registry', 'ui'], function($, registry, ui) {
         
             // add any additional modules
             $.extend(registry, additionalModules);
@@ -277,7 +277,7 @@ if (typeof DEBUG === 'undefined') {
                             var $ref = $(this),
                                 res = $ref.data('resource');
                             // do a jig to deal with unloaded resources
-                            core.addPopup($ref, function(callback) {
+                            ui.addPopup($ref, function(callback) {
                                 res.ready(function() {
                                     callback(module.detailView(res));
                                 });
@@ -293,7 +293,7 @@ if (typeof DEBUG === 'undefined') {
                     dataType: 'json',
                     resourceName: identity,
                     // detail view for popup window
-                    detailView: core.detailView,
+                    detailView: ui.detailView,
                     initialize: noop
                 }, opts);
             };
@@ -311,8 +311,8 @@ if (typeof DEBUG === 'undefined') {
                     if (++loaded == target) {
                         if (DEBUG) console.log('All modules loaded');
                         awld.loaded = true;
-                        // init core
-                        core.init(modules);
+                        // init ui
+                        ui.init(modules);
                     }
                 };
             

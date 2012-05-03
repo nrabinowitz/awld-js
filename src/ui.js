@@ -1,8 +1,8 @@
-// Core module: Displays index
+// Core UI elements: index, popup
 
-define('core',['jquery', 'mustache',
-               'text!core/core.css', 
-               'text!core/index.html', 'text!core/pop.html', 'text!core/details.html'], 
+define('ui',['jquery', 'mustache',
+               'text!ui/core.css', 
+               'text!ui/index.html', 'text!ui/pop.html', 'text!ui/details.html'], 
     function($, Mustache, coreStyles, indexTemplate, popTemplate, detailTemplate) {
         var modules,
             $pop,
@@ -90,7 +90,7 @@ define('core',['jquery', 'mustache',
                 $('.awld-content', $pop)
                     .html(html);
                 $('.awld-pop-inner', $pop)
-                    .toggleClass('loading', !html)
+                    .toggleClass('loading', !html);
             }
             // clear previous content
             setContent('');

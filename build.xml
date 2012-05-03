@@ -30,11 +30,11 @@
         <property name="js.settings" value="${config.dir}/settings.production.js"/>
         <property name="js.uglify.compress" value="true"/>
         <property name="css.less.compress" value="true"/>
-        <!-- This won't work with more than 1 core module -->
-        <property name="js.rjs.core" value="${production.rjs.core}"/>
-        <property name="js.rjs.core.build" value="${tmp.dir}/${production.rjs.core}.js"/>
+        <!-- This won't work with more than 1 ui module -->
+        <property name="js.rjs.ui" value="${production.rjs.ui}"/>
+        <property name="js.rjs.ui.build" value="${tmp.dir}/${production.rjs.ui}.js"/>
         <property name="js.uglify.files" value="${production.files.head},
-                                                ${js.rjs.core.build},
+                                                ${js.rjs.ui.build},
                                                 ${production.files.main}"/>
         
         <ant target="-build"/>
@@ -43,7 +43,7 @@
     <target name="-build" 
             depends="build-release,
                      build-less,
-                     -process-rjs-core,
+                     -process-rjs-ui,
                      -uglify-concat-js,
                      -insert-version,
                      -copy-modules,
@@ -77,8 +77,8 @@
         </for>
     </target>
     
-    <target name="-process-rjs-core">
-        <rjs module="${js.rjs.core}"/>
+    <target name="-process-rjs-ui">
+        <rjs module="${js.rjs.ui}"/>
     </target>
     
     <target name="-copy-modules">
@@ -87,6 +87,9 @@
         </copy>
         <copy todir="${current.release.dir}/lib">
             <fileset dir="${src.dir}/lib"/>
+        </copy>
+        <copy todir="${current.release.dir}/ui">
+            <fileset dir="${src.dir}/ui"/>
         </copy>
         <!-- Now process require module files -->
         <exec executable="node" failonerror="true" outputproperty="js.rjs.modules">
