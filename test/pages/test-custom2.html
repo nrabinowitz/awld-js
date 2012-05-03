@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AWLD Test Page</title>
+        <script src="../../lib/requirejs/require.min.js"></script>
+        <script src="../../src/awld.js"></script>
+        <script>
+            awld.init({
+                baseUrl: 'custom/',
+                modulePath: 'm/',
+                libPath: 'l/'
+            });
+        </script>
+        <style type="text/css">
+            body { margin: 3em; }
+        </style>
+    </head>
+    <body>
+        <h1>AWLD Test Page</h1>
+        <div class="awld-index"></div>
+        <p><a href="http://pleiades.stoa.org/places/494571">A place from Pleiades: Ilion</a></p>
+        <p><a href="custom-api/resource-1.json">A custom resource</a></p>
+    </body>
+</html>

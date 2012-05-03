@@ -94,6 +94,17 @@ if (typeof DEBUG === 'undefined') {
          */
         registerModule: function(uriRoot, path) {
             additionalModules[uriRoot] = path;
+        },
+        
+        /**
+         * Extend the awld object with custom settings.
+         * @function
+         * @param {Object} settings     Hash of settings to apply
+         */
+        extend: function(settings) {
+            for (var prop in settings) {
+                awld[prop] = settings[prop];
+            }
         }
     };
     
@@ -104,8 +115,14 @@ if (typeof DEBUG === 'undefined') {
     awld.init = function(opts) {
         if (DEBUG) console.log('Initializing library');
         
-        // parse arguments
-        var scope = typeof opts == 'string' ? opts : awld.scope,
+        // process arguments
+        var isScope = typeof opts == 'string' || (opts && (opts.nodeType || opts.jquery)),
+            isPlainObject = opts === Object(opts) && !isScope;
+            
+        // an object argument is configuration
+        if (isPlainObject) awld.extend(opts);
+        
+        var scope = isScope ? opts : awld.scope,
             // check for existing jQuery
             jQuery = window.jQuery,
             // check for old versions of jQuery

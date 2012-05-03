@@ -27,6 +27,15 @@ casper
         t.assertUriFound('custom-api/resource-1.json');
         t.assertUriLoaded('custom-api/resource-1.json', 'Custom Resource');
     });
+
+casper
+    .describe("Modules > Load based on links, custom setup, init(config)")
+    .thenOpen(baseUrl + 'test-custom2.html')
+    .waitUntilLoaded()
+    .then(function() {
+        t.assertLoadCount(1);
+        t.assertModuleLoaded('pleiades/place');
+    });
     
 casper
     .describe("Modules > Load multiple URIs, with dupes")

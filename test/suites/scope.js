@@ -22,6 +22,26 @@ casper
     });
     
 casper
+    .describe("Scope > Limit scope with init(config)")
+    .thenOpen(baseUrl + 'test_scope.html', function() {
+        casper.evaluate(function() {
+            awld.init({
+                scope: '#limited-scope'
+            });
+        })
+    })
+    .waitUntilLoaded()
+    .then(function() {
+        t.assertLoadCount(3);
+        t.assertModuleLoaded('perseus/smith');
+        t.assertModuleLoaded('nomisma/nomisma');
+        t.assertModuleLoaded('wikipedia/page');
+        
+        t.assertModuleNotLoaded('pleiades/place');
+        t.assertModuleNotLoaded('loc/lccn');
+    });
+    
+casper
     .describe("Scope > Limit scope with markup class")
     .thenOpen(baseUrl + 'test_scope.html', function() {
         casper.evaluate(function() {
