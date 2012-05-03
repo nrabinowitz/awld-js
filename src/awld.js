@@ -18,14 +18,20 @@ if (typeof DEBUG === 'undefined') {
 (function(window) {
     if (DEBUG) console.log('AWLD.js loaded');
     
-    var additionalModules = {};
+    var additionalModules = {},
+        // check for baseUrl, autoinit
+        docScripts = document.getElementsByTagName('script'),
+        scriptEl = docScripts[docScripts.length - 1],
+        scriptSrc = scriptEl.src,
+        defaultBaseUrl = scriptSrc.replace(/awld\.js.*/, ''),
+        autoInit = !!scriptSrc.match(/autoinit/);
     
     /**
      * @name awld
      * @namespace
      * Root namespace for the library
      */
-    var awld = {
+    awld = {
         /**
          * @type String
          * Base URL for dependencies; library and module 
@@ -33,7 +39,7 @@ if (typeof DEBUG === 'undefined') {
          * See http://requirejs.org/docs/api.html#config for
          * more information.
          */
-        baseUrl: BASE_URL,
+        baseUrl: defaultBaseUrl,
         
         /**
          * @type String
@@ -106,13 +112,13 @@ if (typeof DEBUG === 'undefined') {
                 awld[prop] = settings[prop];
             }
         }
-    };
+    },
     
     /**
      * @function
      * Initialize the library, loading and running modules based on page content
      */
-    awld.init = function(opts) {
+    init = awld.init = function(opts) {
         if (DEBUG) console.log('Initializing library');
         
         // process arguments
@@ -378,5 +384,7 @@ if (typeof DEBUG === 'undefined') {
     
     // add to global namespace
     window.awld = awld;
+    
+    if (autoInit) init();
     
 })(window);
