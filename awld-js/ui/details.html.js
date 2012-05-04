@@ -1,4 +1,4 @@
-define('ui/details.html', ['handlebars'], function(Handlebars) {
+define('ui/details.htmlc', ['handlebars'], function(Handlebars) {
   var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
 return template(function (Handlebars,depth0,helpers,partials,data) {
   helpers = helpers || Handlebars.helpers;

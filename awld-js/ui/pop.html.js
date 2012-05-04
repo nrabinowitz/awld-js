@@ -1,4 +1,4 @@
-define('ui/pop.html', ['handlebars'], function(Handlebars) {
+define('ui/pop.htmlc', ['handlebars'], function(Handlebars) {
   var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
 return template(function (Handlebars,depth0,helpers,partials,data) {
   helpers = helpers || Handlebars.helpers;
