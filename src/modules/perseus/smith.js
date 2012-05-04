@@ -3,7 +3,7 @@
 define(['jquery'], function($) {
     return {
         name: 'Perseus: References in Smith\'s "Greek and Roman biography and mythology"',
-        type: 'dc:Agent',
+        type: 'person',
         dataType: 'xml',
         // data format determined through content negotiation
         corsEnabled: true,

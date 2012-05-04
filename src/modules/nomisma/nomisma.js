@@ -17,13 +17,13 @@ define(['jquery'], function($) {
         },
         getType: function(xml) {
             var map = {
-                    'roman_emperor': 'dc:Agent',
-                    'ruler': 'dc:Agent',
-                    'authority': 'dc:Agent',
-                    'nomisma_region': 'dc:Location',
-                    'hoard': 'dc:Location',
-                    'mint': 'dc:Location',
-                    'material': 'dcmi:PhysicalObject'
+                    'roman_emperor': 'person',
+                    'ruler': 'person',
+                    'authority': 'person',
+                    'nomisma_region': 'place',
+                    'hoard': 'place',
+                    'mint': 'place',
+                    'material': 'object'
                 },
                 type = $('[typeof]', xml).first().attr('typeof');
             if (type) return map[type];

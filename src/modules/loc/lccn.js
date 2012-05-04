@@ -3,7 +3,7 @@
 define(['jquery'], function($) {
     return {
         name: 'Library of Congress Online Catalog',
-        type: 'dc:BibliographicResource',
+        type: 'citation',
         dataType: 'xml',
         toDataUri: function(uri) { 
             return uri + '/dc';

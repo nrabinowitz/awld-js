@@ -3,7 +3,7 @@
 define(function() {
     return {
         name: 'Pleiades Places',
-        type: 'dc:Location',
+        type: 'place',
         toDataUri: function(uri) {
             return uri + '/json';
         },
