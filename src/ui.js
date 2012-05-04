@@ -77,7 +77,7 @@ define('ui',['jquery',
                 $content = $panel.find('.aw-group');
                 
             // add toggle handler
-            $('span.refs', $index).toggle(function() {
+            $('.refs', $index).toggle(function() {
                 hidePopup();
                 $panel.show();
                 $content.slideToggle();
@@ -85,6 +85,18 @@ define('ui',['jquery',
                 $content.slideToggle(function() {
                     $panel.hide();
                 });
+            });
+            
+            // add type/source tab handler
+            // Note: this won't be sufficient if more tabs are added
+            $('.aw-ctrl', $index).delegate('div.off', 'click', function() {
+                // toggle tabs
+                $('.aw-ctrl div', $index)
+                    .toggleClass('off');
+                // toggle listings
+                $('.aw-panel > div', $index)
+                    .not('.aw-ctrl')
+                    .toggle();
             });
             
             // update names when loaded

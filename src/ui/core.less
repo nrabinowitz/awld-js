@@ -67,6 +67,36 @@
         background: @capsule-background;
     }
     
+    .aw-ctrl {
+        margin-top: .5em;
+        padding: @capsule-padding;
+        border-bottom: @capsule-border;
+        
+        span {
+            color: #999;
+        }
+        
+        div {
+            display: inline-block;
+            border: @capsule-border;
+            border-bottom: 0;
+            margin-bottom: -4px;
+            padding: 0 .3em 3px .3em;
+            background: @capsule-background;
+            border-top-left-radius: @capsule-radius;
+            border-top-right-radius: @capsule-radius;
+            
+            &.off {
+                background: #DDD;
+                cursor: pointer;
+            }
+        }
+    }
+    
+    .aw-modules {
+        display: none;
+    }
+    
     // this is a bit of a hack to get the top border visible
     
     hr {
