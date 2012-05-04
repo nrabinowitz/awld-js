@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="awld.js" default="build-less">
+<project name="awld.js" default="build-dev">
     
     <!-- define ant-contrib tasks -->
     <taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -40,8 +40,13 @@
         <ant target="-build"/>
     </target>
     
+    <target name="build-dev" 
+            depends="build-less,
+                     build-handlebars"/>
+    
     <target name="-build" 
             depends="build-release,
+                     build-handlebars,
                      build-less,
                      -process-rjs-ui,
                      -uglify-concat-js,
@@ -66,6 +71,7 @@
         <for param="file">
             <fileset dir="${src.dir}" includes="**/*.less" />
             <sequential>
+                <echo>-- Processing @{file}</echo>
                 <propertyregex override="yes"
                   property="css.file"  input="@{file}"
                   regexp="(.*)\.less" replace="\1.css"/>
@@ -73,6 +79,42 @@
                     <arg line="${css.compress.argument}"/>
                     <arg line="@{file} > ${css.file}"/>
                 </exec>
+          </sequential>
+        </for>
+    </target>
+    
+    <target name="build-handlebars">
+        <echo>Processing Handlebars templates</echo>
+        <for param="file">
+            <fileset dir="${src.dir}" includes="**/*.html" />
+            <sequential>
+                <echo>-- Processing @{file}</echo>
+                <local name="template.name"/>
+                <basename file="@{file}" property="template.name"/>
+                <!-- Compress HTML -->
+                <java jar="${htmlcompressor.jar}" fork="true" failonerror="true">
+                    <arg line="--remove-quotes"/>
+                    <arg line="-o @{file}.tmp @{file}"/>
+                </java>
+                <!-- Compile Handlebars -->
+                <exec executable="${handlebars}" failonerror="true">
+                    <arg line="@{file}.tmp -f @{file}.js"/>
+                </exec>
+                <!-- Remove temp file -->
+                <delete file="@{file}.tmp"/>
+                <!-- Convert for Require.js -->
+                <replaceregexp file="@{file}.js"
+                    match="^\(function\(\)"
+                    replace="define('ui/${template.name}', ['handlebars'], function(Handlebars)"
+                />
+                <replaceregexp file="@{file}.js"
+                    match="templates\['[^']*'\] = "
+                    replace="return "
+                />
+                <replaceregexp file="@{file}.js"
+                    match="\(\);$"
+                    replace=";"
+                />
           </sequential>
         </for>
     </target>
@@ -141,7 +183,7 @@
     </target>
     
     <target name="-insert-version">
-        <replace file="${js.build}" token="VERSION" value="'${version.number}'"/>
+        <replace file="${js.build}" token="AWLD_VERSION" value="'${version.number}'"/>
     </target>
     
     <!-- Server targets -->
@@ -218,7 +260,7 @@
             <echo>Processing @{module}</echo>
             <exec executable="${r.js}" failonerror="true">
                 <arg line="-o baseUrl=./src exclude=text"/>
-                <arg line="paths.jquery=empty: paths.mustache=lib/mustache.0.5.0-dev"/>
+                <arg line="paths.jquery=empty: paths.handlebars=lib/handlebars.runtime"/>
                 <arg line="name=@{module} out=${tmp.dir}/@{module}.js"/>
             </exec>
         </sequential>

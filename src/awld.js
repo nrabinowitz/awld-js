@@ -7,7 +7,8 @@
 // removed in production by uglify
 if (typeof DEBUG === 'undefined') {
     DEBUG = true;
-    VERSION = 'debug';
+    AWLD_VERSION = 'debug';
+    POPUP_CLOSE = 'manual';
     BASE_URL = '../../src/';
     // cache busting for development
     require.config({
@@ -65,7 +66,7 @@ if (typeof DEBUG === 'undefined') {
          * @type String
          * Version number
          */
-        version: VERSION,
+        version: AWLD_VERSION,
         
         /**
          * @type Object[]
@@ -84,6 +85,14 @@ if (typeof DEBUG === 'undefined') {
          * Whether to auto-load data for all identified URIs
          */
         autoLoad: true,
+         
+        /**
+         * @name alwd.popupClose
+         * @type String|Number
+         * How the popup window should be closed. Options are either a number 
+         * (milliseconds to wait before closing) or the string 'manual'.
+         */
+        popupClose: POPUP_CLOSE,
         
         /**
          * @name alwd.scope
@@ -151,8 +160,8 @@ if (typeof DEBUG === 'undefined') {
             define('jquery', [], function() { return jQuery; });
         }
         
-        // add mustache - better way to add libraries?
-        paths.mustache = libPath + 'mustache.0.5.0-dev';
+        // add handlebars - XXX: better way to add libraries?
+        paths.handlebars = libPath + 'handlebars.runtime';
         
         // set up require
         require.config({

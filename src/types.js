@@ -12,7 +12,7 @@ define('types', [], function() {
     // XXX: deal with xmlns?
     
     // set up types
-    var typeNames = {
+    var typeLabels = {
             'dc:Agent': 'Person',
             'dc:Location': 'Place',
             'dc:BibliographicResource': 'Bibliographic Reference',
@@ -20,26 +20,26 @@ define('types', [], function() {
             'dcmi:Text': 'Text',
             'dcmi:PhysicalObject': 'Physical Object'
         },
-        types = keys(typeNames),
-        pluralNames = {},
+        types = keys(typeLabels),
+        pluralLabels = {},
         typeMap = {
             'foaf:Person': 'dc:Agent'
         },
         map = function(name) {
             return typeMap[name] || name;
         }
-        name = function(type) {
-            return typeNames[map(type)];
+        label = function(type) {
+            return typeLabels[map(type)];
         },
-        pluralName = function(type) {
+        pluralLabel = function(type) {
             type = map(type);
-            return type in pluralNames ? typeNames[type] : typeNames[type] + 's';
+            return type in pluralLabels ? typeLabels[type] : typeLabels[type] + 's';
         };
     
     return {
         types: types,
         map: map,
-        name: name,
-        pluralName: pluralName
+        label: label,
+        pluralLabel: pluralLabel
     }
 });

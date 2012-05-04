@@ -26,6 +26,7 @@ casper
     .waitUntilLoaded()
     .then(function() {
         t.assertResourceType('wikipedia/page', 'dcmi:PhysicalObject');
+        t.assertResourceType('wikipedia/page', 'skos:Concept', 1);
         t.assertResourceType('perseus/smith', 'dc:Location');
     });
     
@@ -34,7 +35,7 @@ casper
     .thenOpen(baseUrl + 'test.html')
     .waitUntilLoaded()
     .then(function() {
-        t.assertUriLoaded('http://nomisma.org/id/athens', 'Athens')
+        t.assertUriLoaded('http://nomisma.org/id/athens', 'Athens');
         t.assertResourceType('nomisma/nomisma', 'dc:Location');
     });
 

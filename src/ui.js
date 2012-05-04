@@ -1,12 +1,12 @@
 // Core UI elements: index, popup
 
 define('ui',['jquery', 
-             'mustache',
-             'text!ui/core.css', 
-             'text!ui/index.html', 
+             'types',
+             'text!ui/core.css',
+             'ui/index.html', 
              'text!ui/pop.html', 
-             'text!ui/details.html'], 
-    function($, Mustache, coreStyles, indexTemplate, popTemplate, detailTemplate) {
+             'ui/details.html'], 
+    function($, types, coreCss, indexTemplate, popHtml, detailTemplate) {
         var modules,
             $pop,
             popTimer;
@@ -16,6 +16,7 @@ define('ui',['jquery',
             var data = res.data || {};
             return $.extend({}, data, { 
                 href: res.href, 
+                type: types.label(res.type),
                 name: res.name(),
                 haslatlon: !!data.latlon
             });
@@ -39,7 +40,7 @@ define('ui',['jquery',
                 count = mdata.reduce(function(agg, d) { return agg + d.res.length; }, 0),
                 plural = count != 1 ? 's' : '',
                 // render the index
-                $index = $(Mustache.render(indexTemplate, {
+                $index = $(indexTemplate({
                     c: count,
                     p: plural,
                     m: mdata
@@ -87,7 +88,7 @@ define('ui',['jquery',
         // Designed and built with all the love in the world @twitter by @mdo and @fat.
         function showPopup($ref, content) {
             // get window
-            $pop = $pop || $(popTemplate);
+            $pop = $pop || $(popHtml);
             // set content
             function setContent(html) {
                 $('.awld-content', $pop)
@@ -140,42 +141,51 @@ define('ui',['jquery',
         
         // add functionality to show popups on hover
         function addPopup($ref, content) {
-            var clearTimer = function() {
-                    if (popTimer) clearTimeout(popTimer);
-                    popTimer = 0;
-                },
-                startTimer = function() {
-                    clearTimer();
-                    popTimer = setTimeout(function() {
-                        hidePopup();
+            var popupClose = awld.popupClose;
+            if (popupClose == 'manual') {
+                // require manual close
+                $ref.mouseover(function() {
+                    showPopup($ref, content);
+                });
+            } else {
+                // automatically close after a given delay
+                var clearTimer = function() {
+                        if (popTimer) clearTimeout(popTimer);
                         popTimer = 0;
-                    }, 1500);
-                };
-                
-            $ref.hover(function() {
-                clearTimer();
-                showPopup($ref, content);
-                // set handlers on the popup
-                $pop.bind('mouseover', clearTimer)
-                    .bind('mouseleave', function() {
+                    },
+                    startTimer = function() {
                         clearTimer();
-                        hidePopup();
-                        $pop.unbind('mouseleave mouseover');
-                    });
-            }, function() {
-                startTimer();
-            });
+                        popTimer = setTimeout(function() {
+                            hidePopup();
+                            popTimer = 0;
+                        }, popupClose);
+                    };
+                // set hover handler
+                $ref.hover(function() {
+                    clearTimer();
+                    showPopup($ref, content);
+                    // set handlers on the popup
+                    $pop.bind('mouseover', clearTimer)
+                        .bind('mouseleave', function() {
+                            clearTimer();
+                            hidePopup();
+                            $pop.unbind('mouseleave mouseover');
+                        });
+                }, function() {
+                    startTimer();
+                });
+            }
         }
         
         // simple detail view
         function detailView(res) {
-            return Mustache.render(detailTemplate, resMap(res));
+            return detailTemplate(resMap(res));
         }
         
         // initialize core
         function init(loadedModules) {
             modules = loadedModules;
-            if (modules.length) loadStyles(coreStyles);
+            if (modules.length) loadStyles(coreCss);
             addIndex('.awld-index');
         }
         
