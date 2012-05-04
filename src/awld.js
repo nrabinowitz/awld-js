@@ -170,7 +170,7 @@ if (typeof DEBUG === 'undefined') {
         });
         
         // load registry and initialize modules
-        require(['jquery', 'registry', 'ui'], function($, registry, ui) {
+        require(['jquery', 'registry', 'ui', 'types'], function($, registry, ui, types) {
         
             // add any additional modules
             $.extend(registry, additionalModules);
@@ -232,7 +232,7 @@ if (typeof DEBUG === 'undefined') {
                                         try {
                                             res.data = parseResponse(data);
                                             // potentially set type
-                                            if (!res.type) res.type = module.getType(data);
+                                            if (!res.type) res.type = types.map(module.getType(data));
                                         } catch(e) {
                                             if (DEBUG) console.error('Error loading data for ' + res.uri,  data, e);
                                         }
@@ -296,7 +296,7 @@ if (typeof DEBUG === 'undefined') {
                             .reduce(function(agg, el) {
                                 var $ref = $(el),
                                     href = $ref.attr('href'),
-                                    type = $ref.attr('typeof') || module.type;
+                                    type = types.fromClass($ref.attr('class')) || types.map(module.type);
                                 if (!(href in agg)) {
                                     agg[href] = Resource({
                                         module: module,
