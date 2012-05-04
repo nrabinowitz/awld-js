@@ -80,9 +80,9 @@ define('ui',['jquery',
             $('.refs', $index).toggle(function() {
                 hidePopup();
                 $panel.show();
-                $content.slideToggle();
+                $content.slideToggle('fast');
             }, function() {
-                $content.slideToggle(function() {
+                $content.slideToggle('fast', function() {
                     $panel.hide();
                 });
             });
