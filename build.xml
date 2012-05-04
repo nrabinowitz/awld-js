@@ -30,6 +30,7 @@
         <property name="js.settings" value="${config.dir}/settings.production.js"/>
         <property name="js.uglify.compress" value="true"/>
         <property name="css.less.compress" value="true"/>
+        <property name="html.compress" value="true"/>
         <!-- This won't work with more than 1 ui module -->
         <property name="js.rjs.ui" value="${production.rjs.ui}"/>
         <property name="js.rjs.ui.build" value="${tmp.dir}/${production.rjs.ui}.js"/>
@@ -85,6 +86,9 @@
     
     <target name="build-handlebars">
         <echo>Processing Handlebars templates</echo>
+        <condition property="template.suffix" value=".tmp" else="">
+            <isset property="html.compress"/>
+        </condition>
         <for param="file">
             <fileset dir="${src.dir}" includes="**/*.html" />
             <sequential>
@@ -92,16 +96,26 @@
                 <local name="template.name"/>
                 <basename file="@{file}" property="template.name"/>
                 <!-- Compress HTML -->
-                <java jar="${htmlcompressor.jar}" fork="true" failonerror="true">
-                    <arg line="--remove-quotes"/>
-                    <arg line="-o @{file}.tmp @{file}"/>
-                </java>
+                <if>
+                    <isset property="html.compress"/>
+                    <then>
+                        <java jar="${htmlcompressor.jar}" fork="true" failonerror="true">
+                            <arg line="--remove-quotes"/>
+                            <arg line="-o @{file}.tmp @{file}"/>
+                        </java>
+                    </then>
+                </if>
                 <!-- Compile Handlebars -->
                 <exec executable="${handlebars}" failonerror="true">
-                    <arg line="@{file}.tmp -f @{file}.js"/>
+                    <arg line="@{file}${template.suffix} -f @{file}.js"/>
                 </exec>
                 <!-- Remove temp file -->
-                <delete file="@{file}.tmp"/>
+                <if>
+                    <isset property="html.compress"/>
+                    <then>
+                        <delete file="@{file}.tmp"/>
+                    </then>
+                </if>
                 <!-- Convert for Require.js -->
                 <replaceregexp file="@{file}.js"
                     match="^\(function\(\)"
