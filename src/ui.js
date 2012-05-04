@@ -1,15 +1,24 @@
 // Core UI elements: index, popup
 
 define('ui',['jquery', 
+             'handlebars',
              'types',
              'text!ui/core.css',
-             'ui/index.html', 
+             // note that .html files are actually .html.js files
+             'ui/index.html',
+             'ui/index-grp.html', 
              'text!ui/pop.html', 
              'ui/details.html'], 
-    function($, types, coreCss, indexTemplate, popHtml, detailTemplate) {
+    function($, Handlebars, types, 
+             coreCss, indexTemplate, groupTemplate, 
+             popHtml, detailTemplate) {
+             
         var modules,
             $pop,
             popTimer;
+            
+        // make the group template available
+        Handlebars.registerPartial('grp', groupTemplate);
             
         // utility - make a map of common resource data
         function resMap(res) {
@@ -31,24 +40,40 @@ define('ui',['jquery',
         
         // create the index of known references
         function makeIndex() {
+            // get resources grouped by module
             var mdata = modules.map(function(module) {
                     return { 
                         name: module.name,
                         res: module.resources.map(resMap)
                     };
                 }),
-                count = mdata.reduce(function(agg, d) { return agg + d.res.length; }, 0),
+                // get all resources
+                resources = mdata.reduce(function(agg, d) {
+                    return agg.concat(d.res); 
+                }, []),
+                count = resources.length,
                 plural = count != 1 ? 's' : '',
+                // get resources grouped by type
+                tdata = [],
+                // XXX: what about types set after resource load?
+                typeGroups = resources.reduce(function(agg, res) {
+                    var type = res.type;
+                    if (!(type in agg))
+                        agg[type] = tdata[tdata.length] = { name: type, res: [] };
+                    agg[type].res.push(res);
+                    return agg;
+                }, {}),
                 // render the index
                 $index = $(indexTemplate({
                     c: count,
                     p: plural,
-                    m: mdata
+                    m: mdata,
+                    t: tdata.sort(function(a,b) { return a.name > b.name ? 1 : -1 })
                 })),
-                // cache refs
-                $panel = $('.panel', $index)
+                // cache DOM refs
+                $panel = $('.aw-panel', $index)
                     .add('hr', $index),
-                $content = $panel.find('.module');
+                $content = $panel.find('.aw-group');
                 
             // add toggle handler
             $('span.refs', $index).toggle(function() {

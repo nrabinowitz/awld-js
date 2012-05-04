@@ -29,7 +29,7 @@ define('types', [], function() {
             return typeMap[name] || name;
         }
         label = function(type) {
-            return typeLabels[map(type)];
+            return typeLabels[map(type)] || 'Unknown';
         },
         pluralLabel = function(type) {
             type = map(type);
