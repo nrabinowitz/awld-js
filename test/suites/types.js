@@ -16,8 +16,9 @@ casper
     .thenOpen(baseUrl + 'test.html')
     .waitUntilLoaded()
     .then(function() {
-        t.assertResourceType('loc/lccn', 'dc:BibliographicResource');
-        t.assertResourceType('pleiades/place', 'dc:Location');
+        t.assertResourceType('loc/lccn', 'citation');
+        t.assertResourceType('pleiades/place', 'place');
+        t.assertResourceType('worldcat/oclc', 'citation');
     });
     
 casper
@@ -25,9 +26,9 @@ casper
     .thenOpen(baseUrl + 'test.html')
     .waitUntilLoaded()
     .then(function() {
-        t.assertResourceType('wikipedia/page', 'dcmi:PhysicalObject');
-        t.assertResourceType('wikipedia/page', 'skos:Concept', 1);
-        t.assertResourceType('perseus/smith', 'dc:Location');
+        t.assertResourceType('wikipedia/page', 'object');
+        t.assertResourceType('wikipedia/page', 'concept', 1);
+        t.assertResourceType('perseus/smith', 'place');
     });
     
 casper
@@ -36,7 +37,7 @@ casper
     .waitUntilLoaded()
     .then(function() {
         t.assertUriLoaded('http://nomisma.org/id/athens', 'Athens');
-        t.assertResourceType('nomisma/nomisma', 'dc:Location');
+        t.assertResourceType('nomisma/nomisma', 'place');
     });
 
 casper.run(function() {

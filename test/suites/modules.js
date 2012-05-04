@@ -8,12 +8,13 @@ casper
     .thenOpen(baseUrl + 'test.html')
     .waitUntilLoaded()
     .then(function() {
-        t.assertLoadCount(5);
+        t.assertLoadCount(6);
         t.assertModuleLoaded('pleiades/place');
         t.assertModuleLoaded('loc/lccn');
         t.assertModuleLoaded('perseus/smith');
         t.assertModuleLoaded('nomisma/nomisma');
         t.assertModuleLoaded('wikipedia/page');
+        t.assertModuleLoaded('worldcat/oclc');
     });
     
 casper
