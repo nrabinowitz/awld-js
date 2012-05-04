@@ -160,8 +160,9 @@ if (typeof DEBUG === 'undefined') {
             define('jquery', [], function() { return jQuery; });
         }
         
-        // add handlebars - XXX: better way to add libraries?
+        // add libraries - XXX: better way?
         paths.handlebars = libPath + 'handlebars.runtime';
+        paths.mustache = libPath + 'mustache.0.5.0-dev';
         
         // set up require
         require.config({

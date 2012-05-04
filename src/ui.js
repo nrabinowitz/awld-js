@@ -1,24 +1,20 @@
 // Core UI elements: index, popup
 
 define('ui',['jquery', 
-             'handlebars',
+             'mustache',
              'types',
              'text!ui/core.css',
-             // note that .html files are actually .html.js files
-             'ui/index.html',
-             'ui/index-grp.html', 
-             'text!ui/pop.html', 
-             'ui/details.html'], 
-    function($, Handlebars, types, 
+             'text!ui/index.htmlc',
+             'text!ui/index-grp.htmlc', 
+             'text!ui/pop.htmlc', 
+             'text!ui/details.htmlc'], 
+    function($, Mustache, types, 
              coreCss, indexTemplate, groupTemplate, 
              popHtml, detailTemplate) {
              
         var modules,
             $pop,
             popTimer;
-            
-        // make the group template available
-        Handlebars.registerPartial('grp', groupTemplate);
             
         // utility - make a map of common resource data
         function resMap(res) {
@@ -64,12 +60,12 @@ define('ui',['jquery',
                     return agg;
                 }, {}),
                 // render the index
-                $index = $(indexTemplate({
+                $index = $(Mustache.render(indexTemplate, {
                     c: count,
                     p: plural,
                     m: mdata,
                     t: tdata.sort(function(a,b) { return a.name > b.name ? 1 : -1 })
-                })),
+                }, { grp: groupTemplate })),
                 // cache DOM refs
                 $panel = $('.aw-panel', $index)
                     .add('hr', $index),
@@ -204,7 +200,7 @@ define('ui',['jquery',
         
         // simple detail view
         function detailView(res) {
-            return detailTemplate(resMap(res));
+            return Mustache.render(detailTemplate, resMap(res));
         }
         
         // initialize core

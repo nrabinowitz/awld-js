@@ -43,11 +43,11 @@
     
     <target name="build-dev" 
             depends="build-less,
-                     build-handlebars"/>
+                     build-templates"/>
     
     <target name="-build" 
             depends="build-release,
-                     build-handlebars,
+                     build-templates,
                      build-less,
                      -process-rjs-ui,
                      -uglify-concat-js,
@@ -84,51 +84,40 @@
         </for>
     </target>
     
-    <target name="build-handlebars">
-        <echo>Processing Handlebars templates</echo>
-        <condition property="template.suffix" value=".tmp" else="">
-            <isset property="html.compress"/>
-        </condition>
+    <target name="build-templates">
+        <echo>Processing templates</echo>
         <for param="file">
             <fileset dir="${src.dir}" includes="**/*.html" />
             <sequential>
                 <echo>-- Processing @{file}</echo>
-                <local name="template.name"/>
-                <basename file="@{file}" property="template.name"/>
+                <local name="file.compressed"/>
+                <property name="file.compressed" value="@{file}c"/>
                 <!-- Compress HTML -->
                 <if>
                     <isset property="html.compress"/>
                     <then>
                         <java jar="${htmlcompressor.jar}" fork="true" failonerror="true">
                             <arg line="--remove-quotes"/>
-                            <arg line="-o @{file}.tmp @{file}"/>
+                            <arg line="-o ${file.compressed} @{file}"/>
                         </java>
                     </then>
+                    <else>
+                        <copy file="@{file}" tofile="${file.compressed}" overwrite="true"/>
+                    </else>
                 </if>
-                <!-- Compile Handlebars -->
-                <exec executable="${handlebars}" failonerror="true">
-                    <arg line="@{file}${template.suffix} -f @{file}.js"/>
-                </exec>
-                <!-- Remove temp file -->
                 <if>
-                    <isset property="html.compress"/>
+                    <isset property="use.handlebars"/>
                     <then>
-                        <delete file="@{file}.tmp"/>
+                        <handlebars file="${file.compressed}" outfile="@{file}.js"/>
+                        <!-- Remove temp file -->
+                        <if>
+                            <isset property="html.compress"/>
+                            <then>
+                                <delete file="${file.compressed}"/>
+                            </then>
+                        </if>
                     </then>
                 </if>
-                <!-- Convert for Require.js -->
-                <replaceregexp file="@{file}.js"
-                    match="^\(function\(\)"
-                    replace="define('ui/${template.name}', ['handlebars'], function(Handlebars)"
-                />
-                <replaceregexp file="@{file}.js"
-                    match="templates\['[^']*'\] = "
-                    replace="return "
-                />
-                <replaceregexp file="@{file}.js"
-                    match="\(\);$"
-                    replace=";"
-                />
           </sequential>
         </for>
     </target>
@@ -274,9 +263,38 @@
             <echo>Processing @{module}</echo>
             <exec executable="${r.js}" failonerror="true">
                 <arg line="-o baseUrl=./src exclude=text"/>
-                <arg line="paths.jquery=empty: paths.handlebars=lib/handlebars.runtime"/>
+                <arg line="paths.jquery=empty:"/>
+                <arg line="paths.handlebars=lib/handlebars.runtime"/>
+                <arg line="paths.mustache=lib/mustache.0.5.0-dev"/>
                 <arg line="name=@{module} out=${tmp.dir}/@{module}.js"/>
             </exec>
         </sequential>
     </macrodef>
+    
+    <macrodef name="handlebars">
+        <attribute name="file"/>
+        <attribute name="outfile"/>
+        <sequential>
+            <local name="template.name"/>
+            <basename file="@{file}" property="template.name"/>
+            <!-- Compile Handlebars -->
+            <exec executable="${handlebars}" failonerror="true">
+                <arg line="@{file} -f @{outfile}"/>
+            </exec>
+            <!-- Convert for Require.js -->
+            <replaceregexp file="@{outfile}"
+                match="^\(function\(\)"
+                replace="define('ui/${template.name}', ['handlebars'], function(Handlebars)"
+            />
+            <replaceregexp file="@{outfile}"
+                match="templates\['[^']*'\] = "
+                replace="return "
+            />
+            <replaceregexp file="@{outfile}"
+                match="\(\);$"
+                replace=";"
+            />
+        </sequential>
+    </macrodef>
+    
 </project>
