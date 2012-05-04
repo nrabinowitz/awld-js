@@ -18,12 +18,17 @@ define('ui',['jquery',
             
         // utility - make a map of common resource data
         function resMap(res) {
-            var data = res.data || {};
+            var data = res.data || {},
+                type = types.label(res.type);
             return $.extend({}, data, { 
                 href: res.href, 
-                type: types.label(res.type),
+                type: type,
                 name: res.name(),
-                haslatlon: !!data.latlon
+                // seriously, though, Mustache
+                '?': {
+                    latlon: !!data.latlon,
+                    type: type && type != 'Unknown'
+                }
             });
         }
         
