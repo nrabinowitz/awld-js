@@ -197,6 +197,7 @@ if (typeof DEBUG === 'undefined') {
             var Resource = awld.Resource = function(opts) {
                 var readyHandlers = [],
                     module = opts.module,
+                    noFetch = module.noFetch,
                     dataType = module.dataType,
                     jsonp = dataType == 'jsonp',
                     cors = module.corsEnabled,
@@ -211,7 +212,7 @@ if (typeof DEBUG === 'undefined') {
                 return $.extend({
                     // do something when data is loaded
                     ready: function(f) {
-                        if (loaded) f();
+                        if (loaded || noFetch) f();
                         else {
                             readyHandlers.push(f);
                             this.fetch();
@@ -220,7 +221,7 @@ if (typeof DEBUG === 'undefined') {
                     // load data for this resource
                     fetch: function() {
                         // don't allow multiple reqs
-                        if (!fetching) {
+                        if (!fetching && !noFetch) {
                             fetching = true;
                             var res = this,
                                 parseResponse = parseData,
@@ -302,7 +303,7 @@ if (typeof DEBUG === 'undefined') {
                                         module: module,
                                         uri: module.toDataUri(href),
                                         href: href,
-                                        linkText: $ref.text(),
+                                        linkText: $ref.attr('title') || $ref.text(),
                                         type: type
                                     });
                                     // add to array
