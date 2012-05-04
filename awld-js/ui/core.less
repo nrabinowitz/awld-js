@@ -165,7 +165,8 @@
 .awld-pop-inner {
     width: 280px;
     height: 180px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     .capsule;
     padding: 2px 6px;
     
@@ -175,8 +176,17 @@
         background-position: 50% 50%;
     }
     
+    .res-type {
+        font-weight: normal;
+        color: #33C;
+    }
+    
     .media {
         margin: 1em 1em 0 0;
         float: left;
+    }
+    
+    p {
+        margin: 1em 1em 0 0;
     }
 }
