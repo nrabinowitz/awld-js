@@ -18,14 +18,6 @@ if (typeof DEBUG === 'undefined') {
 
 (function(window) {
     if (DEBUG) console.log('AWLD.js loaded');
-    
-    var additionalModules = {},
-        // check for baseUrl, autoinit
-        docScripts = document.getElementsByTagName('script'),
-        scriptEl = docScripts[docScripts.length - 1],
-        scriptSrc = scriptEl.src,
-        defaultBaseUrl = scriptSrc.replace(/awld\.js.*/, ''),
-        autoInit = !!scriptSrc.match(/autoinit/);
         
     // utility: simple object extend
     function extend(obj, settings) {
@@ -36,8 +28,16 @@ if (typeof DEBUG === 'undefined') {
     
     // utility: is this a string?
     function isString(obj) {
-        return typeof obj == 'string'
+        return typeof obj == 'string';
     }
+    
+    var additionalModules = {},
+        // check for baseUrl, autoinit
+        docScripts = document.getElementsByTagName('script'),
+        scriptEl = docScripts[docScripts.length - 1],
+        scriptSrc = scriptEl.src,
+        defaultBaseUrl = scriptSrc.replace(/awld\.js.*/, ''),
+        autoInit = !!scriptSrc.match(/autoinit/),
     
     /**
      * @name awld
