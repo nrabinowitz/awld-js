@@ -90,7 +90,7 @@ t.assertUriFound = function(uri) {
 t.assertUriLoaded = function(uri, title) {
     return casper.waitFor(function() {
         return casper.evaluate(function(uri, title) {
-            return $('#aw-index a[href="' + uri + '"]').text() == title;
+            return $('#aw-index a[href="' + uri + '"]').first().text() == title;
         }, { uri: uri, title: title })
     }, function() {
         t.pass('Uri ' + uri + ' is loaded with title ' + title);

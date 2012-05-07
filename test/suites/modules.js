@@ -45,7 +45,8 @@ casper
     .then(function() {
         t.assertLoadCount(1);
         t.assertModuleLoaded('nomisma/nomisma');
-        t.assertEvalEquals(function() { return $('.awld p').length }, 2,
+        // *2 because there are two lists in index now
+        t.assertEvalEquals(function() { return $('.awld p').length }, 2 * 2,
             'Two links found');
         t.assertEvalEquals(function() { return awld.moduleMap['nomisma/nomisma'].resources.length }, 2,
             'Two resources found');
